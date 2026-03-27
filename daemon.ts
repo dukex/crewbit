@@ -1,5 +1,5 @@
 #!/usr/bin/env tsx
-import { execSync, spawnSync, spawn } from "child_process";
+import { spawn } from "child_process";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import {
@@ -38,35 +38,6 @@ function log(message: string): void {
   console.log(`[${timestamp()}] ${message}`);
 }
 
-function cleanWorktrees(prefix: string): void {
-  const cwd = REPO_ROOT;
-  try {
-    execSync(`rm -rf .claude/worktrees/${prefix}-*`, { cwd, stdio: "inherit" });
-    execSync("git worktree prune", { cwd, stdio: "inherit" });
-  } catch (e) {
-    log(`Warning: failed to clean worktree dirs: ${e instanceof Error ? e.message : String(e)}`);
-  }
-  // delete orphan branches left behind by previous worktree sessions
-  // spawnSync avoids throwing on grep exit 1 (no matches)
-  try {
-    const listed = spawnSync(
-      "git",
-      ["branch", "--format=%(refname:short)"],
-      { cwd, encoding: "utf8" },
-    );
-    const branches = (listed.stdout ?? "")
-      .split("\n")
-      .map((b) => b.trim())
-      .filter((b) => b.startsWith(`worktree-${prefix}-`));
-    if (branches.length > 0) {
-      execSync(`git branch -D ${branches.join(" ")}`, { cwd, stdio: "inherit" });
-      log(`Deleted ${branches.length} orphan branch(es).`);
-    }
-  } catch (e) {
-    log(`Warning: failed to delete orphan branches: ${e instanceof Error ? e.message : String(e)}`);
-  }
-}
-
 async function runClaude(
   action: QueueAction,
   config: WorkflowConfig,
@@ -75,22 +46,15 @@ async function runClaude(
   if (action.type === "idle") return true;
 
   const cmd = config.commands[action.type];
-  const worktreeName = `${config.daemon.worktreePrefix}-${action.issueKey}`;
   const ralphCommand = `${cmd.invoke} ${action.issueKey}`;
   const ralphLoop = `/ralph-loop:ralph-loop "${ralphCommand}" --completion-promise "${cmd.completionPromise}" --max-iterations ${cmd.maxIterations}`;
 
-  log(
-    `[${action.type.toUpperCase()}] ${action.issueKey} → worktree: ${worktreeName}`,
-  );
+  log(`[${action.type.toUpperCase()}] ${action.issueKey}`);
 
   if (dryRun) {
-    log(
-      `[dry-run] would run: echo '${ralphLoop}' | claude -w "${worktreeName}"`,
-    );
+    log(`[dry-run] would run: claude --print '${ralphLoop}'`);
     return true;
   }
-
-  cleanWorktrees(config.daemon.worktreePrefix);
 
   const maxSeconds = Number(
     process.env.MAX_SESSION_SECONDS ?? config.daemon.maxSessionSeconds,
@@ -106,16 +70,12 @@ async function runClaude(
         String(maxSeconds),
         "claude",
         "--dangerously-skip-permissions",
-        "-w",
-        worktreeName,
         "--no-session-persistence",
+        "--print",
+        ralphLoop,
       ],
-      { stdio: ["pipe", "inherit", "pipe"], cwd: REPO_ROOT },
+      { stdio: ["ignore", "inherit", "pipe"], cwd: REPO_ROOT, env: process.env },
     );
-
-    // Pipe the prompt via stdin — equivalent to --print but compatible with -w
-    child.stdin.write(ralphLoop + "\n");
-    child.stdin.end();
 
     function recordLine(line: string): void {
       if (tail.length >= MAX_TAIL) tail.shift();
