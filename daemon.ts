@@ -85,7 +85,7 @@ async function runClaude(
 
   if (dryRun) {
     log(
-      `[dry-run] would run: claude -w "${worktreeName}" --print '${ralphLoop}'`,
+      `[dry-run] would run: echo '${ralphLoop}' | claude -w "${worktreeName}"`,
     );
     return true;
   }
@@ -109,11 +109,13 @@ async function runClaude(
         "-w",
         worktreeName,
         "--no-session-persistence",
-        "--print",
-        ralphLoop,
       ],
-      { stdio: ["ignore", "inherit", "pipe"], cwd: REPO_ROOT },
+      { stdio: ["pipe", "inherit", "pipe"], cwd: REPO_ROOT },
     );
+
+    // Pipe the prompt via stdin — equivalent to --print but compatible with -w
+    child.stdin.write(ralphLoop + "\n");
+    child.stdin.end();
 
     function recordLine(line: string): void {
       if (tail.length >= MAX_TAIL) tail.shift();
