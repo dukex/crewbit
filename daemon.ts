@@ -112,7 +112,7 @@ async function runClaude(
         "--print",
         ralphLoop,
       ],
-      { stdio: ["ignore", "pipe", "pipe"] },
+      { stdio: ["ignore", "inherit", "pipe"], cwd: REPO_ROOT },
     );
 
     function recordLine(line: string): void {
@@ -120,19 +120,11 @@ async function runClaude(
       tail.push(line);
     }
 
-    child.stdout.on("data", (chunk: Buffer) => {
-      const text = chunk.toString();
-      process.stdout.write(text);
-      for (const line of text.split("\n")) {
-        if (line.trim()) recordLine(`[stdout] ${line}`);
-      }
-    });
-
     child.stderr.on("data", (chunk: Buffer) => {
       const text = chunk.toString();
       process.stderr.write(text);
       for (const line of text.split("\n")) {
-        if (line.trim()) recordLine(`[stderr] ${line}`);
+        if (line.trim()) recordLine(line);
       }
     });
 
