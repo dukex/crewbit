@@ -90,8 +90,12 @@ async function runClaude(
       "--print",
       ralphLoop,
     ],
-    { stdio: "inherit", input: "" },
+    { stdio: ["inherit", "inherit", "pipe"], input: "" },
   );
+
+  if (result.stderr?.length) {
+    log(`[STDERR] ${result.stderr.toString().trim()}`);
+  }
 
   if (result.error) {
     log(`[ERROR] Failed to spawn claude: ${result.error.message}`);
