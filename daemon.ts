@@ -1,5 +1,5 @@
 #!/usr/bin/env tsx
-import { execSync, spawnSync } from "child_process";
+import { execSync, spawnSync, spawn } from "child_process";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import {
@@ -96,40 +96,66 @@ async function runClaude(
     process.env.MAX_SESSION_SECONDS ?? config.daemon.maxSessionSeconds,
   );
 
-  const result = spawnSync(
-    "timeout",
-    [
-      String(maxSeconds),
-      "claude",
-      "--dangerously-skip-permissions",
-      "-w",
-      worktreeName,
-      "--no-session-persistence",
-      "--print",
-      ralphLoop,
-    ],
-    { stdio: ["ignore", "inherit", "pipe"] },
-  );
+  return new Promise((resolve) => {
+    const tail: string[] = [];
+    const MAX_TAIL = 50;
 
-  if (result.stderr?.length) {
-    log(`[STDERR] ${result.stderr.toString().trim()}`);
-  }
-
-  if (result.error) {
-    log(`[ERROR] Failed to spawn claude: ${result.error.message}`);
-    return false;
-  } else if (result.signal) {
-    log(
-      `[WARN] Claude killed by signal: ${result.signal} (timeout=${maxSeconds}s)`,
+    const child = spawn(
+      "timeout",
+      [
+        String(maxSeconds),
+        "claude",
+        "--dangerously-skip-permissions",
+        "-w",
+        worktreeName,
+        "--no-session-persistence",
+        "--print",
+        ralphLoop,
+      ],
+      { stdio: ["ignore", "pipe", "pipe"] },
     );
-    return false;
-  } else if (result.status !== 0) {
-    log(`[WARN] Claude exited with code ${result.status}`);
-    return false;
-  } else {
-    log(`[OK] Claude session finished cleanly (exit 0)`);
-    return true;
-  }
+
+    function recordLine(line: string): void {
+      if (tail.length >= MAX_TAIL) tail.shift();
+      tail.push(line);
+    }
+
+    child.stdout.on("data", (chunk: Buffer) => {
+      const text = chunk.toString();
+      process.stdout.write(text);
+      for (const line of text.split("\n")) {
+        if (line.trim()) recordLine(`[stdout] ${line}`);
+      }
+    });
+
+    child.stderr.on("data", (chunk: Buffer) => {
+      const text = chunk.toString();
+      process.stderr.write(text);
+      for (const line of text.split("\n")) {
+        if (line.trim()) recordLine(`[stderr] ${line}`);
+      }
+    });
+
+    child.on("error", (err) => {
+      log(`[ERROR] Failed to spawn claude: ${err.message}`);
+      resolve(false);
+    });
+
+    child.on("close", (code, signal) => {
+      if (signal) {
+        log(`[WARN] Claude killed by signal: ${signal} (timeout=${maxSeconds}s)`);
+        if (tail.length > 0) log(`[TAIL]\n${tail.join("\n")}`);
+        resolve(false);
+      } else if (code !== 0) {
+        log(`[WARN] Claude exited with code ${code}`);
+        if (tail.length > 0) log(`[TAIL]\n${tail.join("\n")}`);
+        resolve(false);
+      } else {
+        log(`[OK] Claude session finished cleanly (exit 0)`);
+        resolve(true);
+      }
+    });
+  });
 }
 
 async function sleep(seconds: number): Promise<void> {
