@@ -43,24 +43,27 @@ function cleanWorktrees(prefix: string): void {
   try {
     execSync(`rm -rf .claude/worktrees/${prefix}-*`, { cwd, stdio: "inherit" });
     execSync("git worktree prune", { cwd, stdio: "inherit" });
-    // delete orphan branches left behind by previous worktree sessions
-    const branches = execSync(
-      `git branch --format='%(refname:short)' | grep '^worktree-${prefix}-'`,
-      { cwd },
-    )
-      .toString()
-      .trim();
-    if (branches) {
-      execSync(`git branch -D ${branches.split("\n").join(" ")}`, {
-        cwd,
-        stdio: "inherit",
-      });
+  } catch (e) {
+    log(`Warning: failed to clean worktree dirs: ${e instanceof Error ? e.message : String(e)}`);
+  }
+  // delete orphan branches left behind by previous worktree sessions
+  // spawnSync avoids throwing on grep exit 1 (no matches)
+  try {
+    const listed = spawnSync(
+      "git",
+      ["branch", "--format=%(refname:short)"],
+      { cwd, encoding: "utf8" },
+    );
+    const branches = (listed.stdout ?? "")
+      .split("\n")
+      .map((b) => b.trim())
+      .filter((b) => b.startsWith(`worktree-${prefix}-`));
+    if (branches.length > 0) {
+      execSync(`git branch -D ${branches.join(" ")}`, { cwd, stdio: "inherit" });
+      log(`Deleted ${branches.length} orphan branch(es).`);
     }
   } catch (e) {
-    log(
-      `Warning: failed to clean worktrees: ${e instanceof Error ? e.message : String(e)}`,
-    );
-    // non-fatal: worktree cleanup failures should not stop the daemon
+    log(`Warning: failed to delete orphan branches: ${e instanceof Error ? e.message : String(e)}`);
   }
 }
 
@@ -105,7 +108,7 @@ async function runClaude(
       "--print",
       ralphLoop,
     ],
-    { stdio: ["inherit", "inherit", "pipe"], input: "" },
+    { stdio: ["ignore", "inherit", "pipe"] },
   );
 
   if (result.stderr?.length) {
