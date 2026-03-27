@@ -43,6 +43,19 @@ function cleanWorktrees(prefix: string): void {
   try {
     execSync(`rm -rf .claude/worktrees/${prefix}-*`, { cwd, stdio: "inherit" });
     execSync("git worktree prune", { cwd, stdio: "inherit" });
+    // delete orphan branches left behind by previous worktree sessions
+    const branches = execSync(
+      `git branch --format='%(refname:short)' | grep '^worktree-${prefix}-'`,
+      { cwd },
+    )
+      .toString()
+      .trim();
+    if (branches) {
+      execSync(`git branch -D ${branches.split("\n").join(" ")}`, {
+        cwd,
+        stdio: "inherit",
+      });
+    }
   } catch (e) {
     log(
       `Warning: failed to clean worktrees: ${e instanceof Error ? e.message : String(e)}`,
@@ -55,8 +68,8 @@ async function runClaude(
   action: QueueAction,
   config: WorkflowConfig,
   dryRun: boolean,
-) {
-  if (action.type === "idle") return;
+): Promise<boolean> {
+  if (action.type === "idle") return true;
 
   const cmd = config.commands[action.type];
   const worktreeName = `${config.daemon.worktreePrefix}-${action.issueKey}`;
@@ -71,7 +84,7 @@ async function runClaude(
     log(
       `[dry-run] would run: claude -w "${worktreeName}" --print '${ralphLoop}'`,
     );
-    return;
+    return true;
   }
 
   cleanWorktrees(config.daemon.worktreePrefix);
@@ -101,12 +114,18 @@ async function runClaude(
 
   if (result.error) {
     log(`[ERROR] Failed to spawn claude: ${result.error.message}`);
+    return false;
   } else if (result.signal) {
-    log(`[WARN] Claude killed by signal: ${result.signal} (timeout=${maxSeconds}s)`);
+    log(
+      `[WARN] Claude killed by signal: ${result.signal} (timeout=${maxSeconds}s)`,
+    );
+    return false;
   } else if (result.status !== 0) {
     log(`[WARN] Claude exited with code ${result.status}`);
+    return false;
   } else {
     log(`[OK] Claude session finished cleanly (exit 0)`);
+    return true;
   }
 }
 
@@ -118,7 +137,7 @@ async function main(): Promise<void> {
   const { configPath, dryRun } = parseArgs();
   let exp = 1;
 
-  log(`dev-junior orchestrator starting${dryRun ? " (dry-run)" : ""}`);
+  log(`orchestrator starting${dryRun ? " (dry-run)" : ""}`);
   log(`Config: ${configPath}`);
 
   process.on("SIGINT", () => {
@@ -147,8 +166,15 @@ async function main(): Promise<void> {
         await sleep(waitSeconds * exp);
         exp *= 2;
       } else {
-        exp = 1;
-        await runClaude(action, config, dryRun);
+        const ok = await runClaude(action, config, dryRun);
+        if (ok) {
+          exp = 1;
+        } else {
+          const backoff = waitSeconds * exp;
+          log(`Session failed. Backing off ${backoff}s before retry.`);
+          await sleep(backoff);
+          exp = Math.min(exp * 2, 32);
+        }
       }
     } catch (error) {
       log(`Error: ${error instanceof Error ? error.message : String(error)}`);
