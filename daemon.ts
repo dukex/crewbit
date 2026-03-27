@@ -97,6 +97,7 @@ async function sleep(seconds: number): Promise<void> {
 
 async function main(): Promise<void> {
   const { configPath, dryRun } = parseArgs();
+  let exp = 1;
 
   log(`dev-junior orchestrator starting${dryRun ? " (dry-run)" : ""}`);
   log(`Config: ${configPath}`);
@@ -122,8 +123,10 @@ async function main(): Promise<void> {
 
       if (action.type === "idle") {
         log(`Queue empty. Next check in ${waitSeconds}s. (Ctrl+C to stop)`);
-        await sleep(waitSeconds);
+        await sleep(waitSeconds * exp);
+        exp *= 2;
       } else {
+        exp = 1;
         runClaude(action, config, dryRun);
       }
     } catch (error) {
