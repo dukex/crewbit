@@ -122,7 +122,9 @@ async function main(): Promise<void> {
       const action = await resolveNextAction(config, provider);
 
       if (action.type === "idle") {
-        log(`Queue empty. Next check in ${waitSeconds}s. (Ctrl+C to stop)`);
+        log(
+          `Queue empty. Next check in ${waitSeconds * exp}s. (Ctrl+C to stop)`,
+        );
         await sleep(waitSeconds * exp);
         exp *= 2;
       } else {
