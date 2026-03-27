@@ -41,16 +41,19 @@ function cleanWorktrees(prefix: string): void {
   try {
     execSync(`rm -rf .claude/worktrees/${prefix}-*`, { stdio: "inherit" });
     execSync("git worktree prune", { stdio: "inherit" });
-  } catch {
+  } catch (e) {
+    log(
+      `Warning: failed to clean worktrees: ${e instanceof Error ? e.message : String(e)}`,
+    );
     // non-fatal: worktree cleanup failures should not stop the daemon
   }
 }
 
-function runClaude(
+async function runClaude(
   action: QueueAction,
   config: WorkflowConfig,
   dryRun: boolean,
-): void {
+) {
   if (action.type === "idle") return;
 
   const cmd = config.commands[action.type];
@@ -75,7 +78,7 @@ function runClaude(
     process.env.MAX_SESSION_SECONDS ?? config.daemon.maxSessionSeconds,
   );
 
-  spawnSync(
+  const result = spawnSync(
     "timeout",
     [
       String(maxSeconds),
@@ -89,6 +92,16 @@ function runClaude(
     ],
     { stdio: "inherit", input: "" },
   );
+
+  if (result.error) {
+    log(`[ERROR] Failed to spawn claude: ${result.error.message}`);
+  } else if (result.signal) {
+    log(`[WARN] Claude killed by signal: ${result.signal} (timeout=${maxSeconds}s)`);
+  } else if (result.status !== 0) {
+    log(`[WARN] Claude exited with code ${result.status}`);
+  } else {
+    log(`[OK] Claude session finished cleanly (exit 0)`);
+  }
 }
 
 async function sleep(seconds: number): Promise<void> {
@@ -113,7 +126,7 @@ async function main(): Promise<void> {
 
   while (true) {
     try {
-      const config = loadConfig(configPath);
+      const config = await loadConfig(configPath);
       const waitSeconds = Number(
         process.env.WAIT_SECONDS ?? config.daemon.waitSeconds,
       );
@@ -129,7 +142,7 @@ async function main(): Promise<void> {
         exp *= 2;
       } else {
         exp = 1;
-        runClaude(action, config, dryRun);
+        await runClaude(action, config, dryRun);
       }
     } catch (error) {
       log(`Error: ${error instanceof Error ? error.message : String(error)}`);
