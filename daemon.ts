@@ -10,6 +10,7 @@ import {
 import type { QueueAction, WorkflowConfig } from "./src/types.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = resolve(HERE, "../..");
 
 function parseArgs(): { configPath: string; dryRun: boolean } {
   const args = process.argv.slice(2);
@@ -38,9 +39,10 @@ function log(message: string): void {
 }
 
 function cleanWorktrees(prefix: string): void {
+  const cwd = REPO_ROOT;
   try {
-    execSync(`rm -rf .claude/worktrees/${prefix}-*`, { stdio: "inherit" });
-    execSync("git worktree prune", { stdio: "inherit" });
+    execSync(`rm -rf .claude/worktrees/${prefix}-*`, { cwd, stdio: "inherit" });
+    execSync("git worktree prune", { cwd, stdio: "inherit" });
   } catch (e) {
     log(
       `Warning: failed to clean worktrees: ${e instanceof Error ? e.message : String(e)}`,
