@@ -1,5 +1,6 @@
 #!/usr/bin/env tsx
 import { spawn } from "child_process";
+import { existsSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import {
@@ -63,7 +64,7 @@ async function runClaude(
     const tail: string[] = [];
     const MAX_TAIL = 50;
 
-    log(`[DEBUG] HOME=${process.env.HOME} CLAUDE_DIR_EXISTS=${require("fs").existsSync(process.env.HOME + "/.claude")}`);
+    log(`[DEBUG] HOME=${process.env.HOME} CLAUDE_DIR_EXISTS=${existsSync((process.env.HOME ?? "") + "/.claude")}`);
 
     // minimal test: no flags that require session init
     const child = spawn(
