@@ -60,18 +60,31 @@ async function runClaude(
     process.env.MAX_SESSION_SECONDS ?? config.daemon.maxSessionSeconds,
   );
 
+  // Strip env vars injected by Claude Code / VSCode that break child claude processes
+  const BLOCKED_ENV = new Set([
+    "CLAUDE_CODE_SSE_PORT",
+    "ANTHROPIC_BASE_URL",
+    "NODE_OPTIONS",
+    "VSCODE_INSPECTOR_OPTIONS",
+    "VSCODE_INJECTION",
+  ]);
+  const childEnv = Object.fromEntries(
+    Object.entries(process.env).filter(([k]) => !BLOCKED_ENV.has(k) && !k.startsWith("CLAUDE_CODE_")),
+  );
+
   return new Promise((resolve) => {
     const tail: string[] = [];
     const MAX_TAIL = 50;
 
-    log(`[DEBUG] HOME=${process.env.HOME} CLAUDE_DIR_EXISTS=${existsSync((process.env.HOME ?? "") + "/.claude")}`);
-    log(`[DEBUG] ENV_KEYS=${Object.keys(process.env).sort().join(",")}`);
-
-    // minimal test: no flags that require session init
     const child = spawn(
       "claude",
-      ["--print", "say hi"],
-      { stdio: ["ignore", "pipe", "pipe"], cwd: REPO_ROOT, env: process.env, timeout: 30000 },
+      [
+        "--dangerously-skip-permissions",
+        "--no-session-persistence",
+        "--print",
+        prompt,
+      ],
+      { stdio: ["ignore", "pipe", "pipe"], cwd: REPO_ROOT, env: childEnv, timeout: maxSeconds * 1000 },
     );
 
     function recordLine(line: string): void {
