@@ -65,6 +65,7 @@ async function runClaude(
     const MAX_TAIL = 50;
 
     log(`[DEBUG] HOME=${process.env.HOME} CLAUDE_DIR_EXISTS=${existsSync((process.env.HOME ?? "") + "/.claude")}`);
+    log(`[DEBUG] ENV_KEYS=${Object.keys(process.env).sort().join(",")}`);
 
     // minimal test: no flags that require session init
     const child = spawn(
