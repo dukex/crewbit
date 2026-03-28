@@ -1,5 +1,5 @@
 #!/usr/bin/env tsx
-import { spawn } from "child_process";
+import { spawn, execSync, spawnSync } from "child_process";
 import { existsSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
@@ -72,6 +72,37 @@ async function runClaude(
     Object.entries(process.env).filter(([k]) => !BLOCKED_ENV.has(k) && !k.startsWith("CLAUDE_CODE_")),
   );
 
+  // Create an isolated git worktree so Claude works on a separate checkout.
+  // -w + --print are incompatible in Claude CLI, so we create the worktree
+  // manually and pass cwd instead.
+  const worktreeName = `${config.daemon.worktreePrefix}-${action.issueKey}`;
+  const worktreePath = resolve(REPO_ROOT, ".claude/worktrees", worktreeName);
+  const worktreeBranch = `worktree-${worktreeName}`;
+
+  try {
+    execSync(`git worktree add "${worktreePath}" -b "${worktreeBranch}"`, {
+      cwd: REPO_ROOT,
+      stdio: "pipe",
+    });
+  } catch {
+    // Worktree or branch may already exist from a previous run — remove and retry
+    try { execSync(`git worktree remove --force "${worktreePath}"`, { cwd: REPO_ROOT, stdio: "pipe" }); } catch {}
+    try { execSync(`git branch -D "${worktreeBranch}"`, { cwd: REPO_ROOT, stdio: "pipe" }); } catch {}
+    execSync(`git worktree add "${worktreePath}" -b "${worktreeBranch}"`, {
+      cwd: REPO_ROOT,
+      stdio: "pipe",
+    });
+  }
+
+  const cleanupWorktree = () => {
+    try { execSync(`git worktree remove --force "${worktreePath}"`, { cwd: REPO_ROOT, stdio: "pipe" }); } catch {}
+    // Only delete the temp branch — the feature branch (KAN-xxx/...) must stay
+    const listed = spawnSync("git", ["branch", "--format=%(refname:short)"], { cwd: REPO_ROOT, encoding: "utf8" });
+    if ((listed.stdout ?? "").split("\n").map(b => b.trim()).includes(worktreeBranch)) {
+      try { execSync(`git branch -D "${worktreeBranch}"`, { cwd: REPO_ROOT, stdio: "pipe" }); } catch {}
+    }
+  };
+
   return new Promise((resolve) => {
     const tail: string[] = [];
     const MAX_TAIL = 50;
@@ -84,7 +115,7 @@ async function runClaude(
         "--print",
         prompt,
       ],
-      { stdio: ["ignore", "pipe", "pipe"], cwd: REPO_ROOT, env: childEnv, timeout: maxSeconds * 1000 },
+      { stdio: ["ignore", "pipe", "pipe"], cwd: worktreePath, env: childEnv, timeout: maxSeconds * 1000 },
     );
 
     function recordLine(line: string): void {
@@ -114,6 +145,7 @@ async function runClaude(
     });
 
     child.on("close", (code, signal) => {
+      cleanupWorktree();
       if (signal) {
         log(`[WARN] Claude killed by signal: ${signal} (timeout=${maxSeconds}s)`);
         if (tail.length > 0) log(`[TAIL]\n${tail.join("\n")}`);
