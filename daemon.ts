@@ -63,6 +63,8 @@ async function runClaude(
     const tail: string[] = [];
     const MAX_TAIL = 50;
 
+    log(`[DEBUG] cwd=${REPO_ROOT} cmd=timeout ${maxSeconds} claude --dangerously-skip-permissions --no-session-persistence --print '${prompt}'`);
+
     const child = spawn(
       "timeout",
       [
@@ -73,7 +75,7 @@ async function runClaude(
         "--print",
         prompt,
       ],
-      { stdio: ["ignore", "inherit", "pipe"], cwd: REPO_ROOT, env: process.env },
+      { stdio: ["ignore", "pipe", "pipe"], cwd: REPO_ROOT, env: process.env },
     );
 
     function recordLine(line: string): void {
@@ -81,11 +83,19 @@ async function runClaude(
       tail.push(line);
     }
 
+    child.stdout.on("data", (chunk: Buffer) => {
+      const text = chunk.toString();
+      process.stdout.write(text);
+      for (const line of text.split("\n")) {
+        if (line.trim()) recordLine(`[out] ${line}`);
+      }
+    });
+
     child.stderr.on("data", (chunk: Buffer) => {
       const text = chunk.toString();
       process.stderr.write(text);
       for (const line of text.split("\n")) {
-        if (line.trim()) recordLine(line);
+        if (line.trim()) recordLine(`[err] ${line}`);
       }
     });
 
