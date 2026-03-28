@@ -63,19 +63,17 @@ async function runClaude(
     const tail: string[] = [];
     const MAX_TAIL = 50;
 
-    log(`[DEBUG] cwd=${REPO_ROOT} cmd=timeout ${maxSeconds} claude --dangerously-skip-permissions --no-session-persistence --print '${prompt}'`);
+    log(`[DEBUG] cwd=${REPO_ROOT} prompt=${prompt}`);
 
     const child = spawn(
-      "timeout",
+      "claude",
       [
-        String(maxSeconds),
-        "claude",
         "--dangerously-skip-permissions",
         "--no-session-persistence",
         "--print",
         prompt,
       ],
-      { stdio: ["ignore", "pipe", "pipe"], cwd: REPO_ROOT, env: process.env },
+      { stdio: ["ignore", "pipe", "pipe"], cwd: REPO_ROOT, env: process.env, timeout: maxSeconds * 1000 },
     );
 
     function recordLine(line: string): void {
