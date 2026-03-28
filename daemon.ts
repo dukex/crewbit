@@ -46,13 +46,12 @@ async function runClaude(
   if (action.type === "idle") return true;
 
   const cmd = config.commands[action.type];
-  const ralphCommand = `${cmd.invoke} ${action.issueKey}`;
-  const ralphLoop = `/ralph-loop:ralph-loop "${ralphCommand}" --completion-promise "${cmd.completionPromise}" --max-iterations ${cmd.maxIterations}`;
+  const prompt = `${cmd.invoke} ${action.issueKey}`;
 
   log(`[${action.type.toUpperCase()}] ${action.issueKey}`);
 
   if (dryRun) {
-    log(`[dry-run] would run: claude --print '${ralphLoop}'`);
+    log(`[dry-run] would run: claude --print '${prompt}'`);
     return true;
   }
 
@@ -72,7 +71,7 @@ async function runClaude(
         "--dangerously-skip-permissions",
         "--no-session-persistence",
         "--print",
-        ralphLoop,
+        prompt,
       ],
       { stdio: ["ignore", "inherit", "pipe"], cwd: REPO_ROOT, env: process.env },
     );

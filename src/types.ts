@@ -24,7 +24,6 @@ export interface WorkflowConfig {
   queue: string[];
   agent: {
     planCommentMarker: string;
-    completedCommentMarker: string;
   };
   commands: {
     merge: CommandConfig;
@@ -57,8 +56,6 @@ export interface JiraProviderConfig {
 
 export interface CommandConfig {
   invoke: string;
-  completionPromise: string;
-  maxIterations: number;
 }
 
 export type QueueAction =
