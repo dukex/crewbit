@@ -38,7 +38,7 @@ export class JiraProvider implements IssueProvider {
   }
 
   async getIssuesByStatus(statusLabel: string): Promise<Issue[]> {
-    const jql = `project = ${this.projectKey} AND status = "${statusLabel}" AND issuetype != Subtask AND issuetype != Epic ORDER BY updated DESC`;
+    const jql = `project = ${this.projectKey} AND status = "${statusLabel}" AND assignee = currentUser() AND issuetype != Subtask AND issuetype != Epic ORDER BY updated DESC`;
     const url = `${this.baseUrl}/rest/api/3/search/jql?jql=${encodeURIComponent(jql)}&maxResults=10&fields=summary,status`;
 
     const response = await fetch(url, {
