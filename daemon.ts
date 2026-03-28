@@ -63,14 +63,12 @@ async function runClaude(
     const tail: string[] = [];
     const MAX_TAIL = 50;
 
+    log(`[DEBUG] HOME=${process.env.HOME} CLAUDE_DIR_EXISTS=${require("fs").existsSync(process.env.HOME + "/.claude")}`);
+
+    // minimal test: no flags that require session init
     const child = spawn(
       "claude",
-      [
-        "--dangerously-skip-permissions",
-        "--no-session-persistence",
-        "--print",
-        "say: DAEMON_TEST_OK",
-      ],
+      ["--print", "say hi"],
       { stdio: ["ignore", "pipe", "pipe"], cwd: REPO_ROOT, env: process.env, timeout: 30000 },
     );
 
