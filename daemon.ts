@@ -69,9 +69,9 @@ async function runClaude(
         "--dangerously-skip-permissions",
         "--no-session-persistence",
         "--print",
-        prompt,
+        "say: DAEMON_TEST_OK",
       ],
-      { stdio: ["ignore", "pipe", "pipe"], cwd: REPO_ROOT, env: process.env, timeout: maxSeconds * 1000 },
+      { stdio: ["ignore", "pipe", "pipe"], cwd: REPO_ROOT, env: process.env, timeout: 30000 },
     );
 
     function recordLine(line: string): void {
