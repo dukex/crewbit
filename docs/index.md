@@ -3,8 +3,8 @@ layout: home
 
 hero:
   name: "crewbit"
-  text: "Give life to an AI agent with a single command."
-  tagline: A daemon that watches your issue tracker, picks up work in priority order, and runs Claude Code for each issue.
+  text: "Give life to your Claude Code with a single command."
+  tagline: A daemon that watches your issue tracker, picks up work in priority order, and runs Claude Code for each issue, like new dev.
   actions:
     - theme: brand
       text: Get Started
@@ -17,7 +17,7 @@ features:
   - title: Zero-config agents
     details: Define your agent's entire behavior — what it does, in what order, with which commands — in a single YAML file.
   - title: Issue tracker driven
-    details: crewbit polls your issue tracker and picks up work automatically. Supports Jira and GitHub Projects v2.
+    details: crewbit polls your issue tracker and picks up work automatically. Supports Jira and GitHub Projects.
   - title: Isolated execution
     details: Each Claude session runs in its own git worktree so branches never conflict. Failed sessions back off automatically.
 ---
