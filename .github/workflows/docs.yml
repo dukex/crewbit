@@ -37,6 +37,9 @@ jobs:
       - name: Verify build output
         run: test -f docs/.vitepress/dist/index.html
 
+      - name: Add dotfile so peaceiris can copy hidden files
+        run: touch docs/.vitepress/dist/.nojekyll
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
