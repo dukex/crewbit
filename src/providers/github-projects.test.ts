@@ -47,12 +47,14 @@ describe("GitHubProjectsProvider", () => {
 
   afterEach(() => {
     mock.restoreAll();
-    process.env.GITHUB_TOKEN = undefined;
+    // biome-ignore lint/performance/noDelete: process.env requires delete to truly unset; assigning undefined leaves the string "undefined" which is truthy
+    delete process.env.GITHUB_TOKEN;
   });
 
   describe("constructor", () => {
     it("throws when GITHUB_TOKEN is missing", () => {
-      process.env.GITHUB_TOKEN = undefined;
+      // biome-ignore lint/performance/noDelete: process.env requires delete to truly unset; assigning undefined leaves the string "undefined" which is truthy
+      delete process.env.GITHUB_TOKEN;
       assert.throws(() => new GitHubProjectsProvider(config), /GITHUB_TOKEN/);
     });
   });
