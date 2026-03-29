@@ -9,7 +9,8 @@ This tutorial takes you from zero configuration to a running crewbit daemon that
 Before you start, make sure you have:
 
 - **Claude Code** installed and authenticated (`claude --version` prints a version number).
-- **A Jira project** with at least one issue in the "To Do" status.
+- **jq** installed (`jq --version` prints a version number) — used in Step 3 to parse Jira API output.
+- **A Jira project** with at least one issue in the "To Do" status assigned to your Jira account.
 - **Jira credentials** — your Atlassian account email and an [API token](https://id.atlassian.com/manage-profile/security/api-tokens).
 - **A Git repository** for the project your agent will work on (crewbit runs Claude inside a git worktree).
 
@@ -23,11 +24,7 @@ Install the latest binary to `/usr/local/bin`:
 curl -fsSL https://crewbit.sh/install | sh
 ```
 
-Confirm it works — you should see a version number:
-
-```bash
-crewbit --version
-```
+You will verify the install works in Step 5 with a dry run.
 
 ---
 
@@ -52,7 +49,7 @@ You should see your email address printed.
 
 ## Step 3 — Find your Jira transition IDs
 
-crewbit needs the numeric IDs of the workflow transitions in your Jira project (e.g., "Start Progress", "Send to Review"). Run this command, replacing the placeholders with your values:
+The YAML config includes a `transitionIds` map that your Claude slash commands (e.g. `/develop`, `/merge`) use to move issues through your Jira workflow. Run this command to discover the numeric IDs, replacing the placeholders with your values:
 
 ```bash
 curl -s \
@@ -83,11 +80,11 @@ provider: jira
 providers:
   jira:
     baseUrl: https://your-org.atlassian.net
-    projectKey: KAN
+    projectKey: JIR
     transitionIds:
-      Start: "21"     # To Do → In Progress
-      ToReview: "9"   # In Progress → In Review
-      Done: "6"       # Accepted → Done
+      Start: "21" # To Do → In Progress
+      ToReview: "9" # In Progress → In Review
+      Done: "6" # Accepted → Done
     issueTypes:
       subtask: "10002"
 
@@ -108,7 +105,7 @@ daemon:
   worktreePrefix: my-agent
 ```
 
-Replace `your-org`, `KAN`, and the transition IDs with your actual values.
+Replace `your-org`, `JIR`, and the transition IDs with your actual values.
 
 ---
 
@@ -123,10 +120,14 @@ crewbit ./crewbit.yaml --dry-run
 A successful dry run prints which issue would be picked up and which command would run, for example:
 
 ```
-[dry-run] would run: /develop KAN-42
+Starting crewbit daemon (repo root: /path/to/repo)...
+[2025-01-01 12:34:56] crewbit starting (dry-run)
+[2025-01-01 12:34:56] Config: /path/to/crewbit.yaml
+[2025-01-01 12:34:56] [RUN] /develop JIR-42
+[2025-01-01 12:34:56] [dry-run] would run: claude --print '/develop JIR-42'
 ```
 
-If you see this, your config is valid. If you see an error, check your `baseUrl`, `projectKey`, transition IDs, and environment variables.
+If you see this, your config is valid. If you see an error, check your `baseUrl`, `projectKey`, and environment variables.
 
 ---
 
@@ -140,20 +141,19 @@ crewbit ./crewbit.yaml
 
 crewbit will:
 
-1. Poll Jira for issues in the "To Do" status.
-2. Pick up the first matching issue.
+1. Poll Jira by checking each transition's `from` status in declaration order (in the example YAML, `Accepted` is checked before `To Do`).
+2. Pick up the first matching issue that is assigned to your Jira account.
 3. Create an isolated git worktree for the session.
-4. Spawn `claude --print /develop KAN-42` inside that worktree.
-5. Move the issue through your workflow as Claude works.
+4. Spawn `claude --print /develop JIR-42` inside that worktree.
 
-Watch the terminal — you will see log lines showing each poll, the issue key picked up, and the Claude session start.
+Watch the terminal — you will see log lines showing each poll, the issue key picked up, and the Claude session start. Jira status transitions are performed by the Claude slash commands themselves, not by the daemon.
 
 ---
 
 ## What just happened?
 
 - crewbit read your YAML and connected to Jira using your credentials.
-- It found an issue in "To Do" and transitioned it to "In Progress".
+- It found an issue assigned to you that matched one of the configured `from` statuses.
 - It ran your `/develop` slash command inside a clean git worktree, so Claude had a safe, isolated environment.
 - When the session finished, the worktree was cleaned up automatically.
 

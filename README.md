@@ -65,7 +65,7 @@ provider: jira
 providers:
   jira:
     baseUrl: https://your-org.atlassian.net
-    projectKey: KAN
+    projectKey: JIR
     transitionIds:
       Start: "21" # To Do → In Progress
       ToReview: "9" # In Progress → In Review

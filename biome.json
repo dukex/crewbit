@@ -1,7 +1,7 @@
 {
   "$schema": "https://biomejs.dev/schemas/1.9.0/schema.json",
   "files": {
-    "ignore": ["docs/.vitepress/dist/**", "docs/.vitepress/cache/**"]
+    "ignore": [".claude/worktrees/", "docs/.vitepress/dist/**", "docs/.vitepress/cache/**"]
   },
   "organizeImports": { "enabled": true },
   "linter": {
