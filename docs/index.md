@@ -17,10 +17,14 @@ features:
   - title: Zero-config agents
     details: Define your agent's entire behavior — what it does, in what order, with which commands — in a single YAML file.
   - title: Issue tracker driven
-    details: crewbit polls your issue tracker and picks up work automatically. Supports Jira today, more providers coming.
+    details: crewbit polls your issue tracker and picks up work automatically. Supports Jira and GitHub Projects v2.
   - title: Isolated execution
     details: Each Claude session runs in its own git worktree so branches never conflict. Failed sessions back off automatically.
 ---
+
+::: warning Dangerous by design
+crewbit spawns Claude Code with `--dangerously-skip-permissions`, which disables all permission prompts. Claude can read, write, and execute anything your shell user can. Only run crewbit in environments you trust and with slash commands you have reviewed. See [how dangerously-skip-permissions works](/explanation/how-it-works#the-dangerously-skip-permissions-trust-model).
+:::
 
 ## Install
 

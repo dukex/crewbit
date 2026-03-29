@@ -35,3 +35,13 @@ This prevents hammering the issue tracker API when there's no work, and gives tr
 ## Blocked environment variables
 
 Before spawning Claude, crewbit strips a set of environment variables that could interfere with the child process: `CLAUDE_CODE_SSE_PORT`, `ANTHROPIC_BASE_URL`, `NODE_OPTIONS`, `VSCODE_*`, and all `CLAUDE_CODE_*` vars. This prevents port conflicts and accidental configuration inheritance.
+
+## The `--dangerously-skip-permissions` trust model
+
+crewbit spawns Claude with `--dangerously-skip-permissions`, which disables Claude Code's interactive permission prompts. This is intentional: unattended daemons cannot respond to prompts.
+
+The tradeoff is that Claude can take any action your shell user can take — reading files, running tests, making commits, calling external APIs. The slash command author is responsible for scoping what Claude does. Keep commands focused and review them before running a daemon in a sensitive environment.
+
+## Per-cycle config reload
+
+The workflow YAML is loaded once at startup and is not re-read between cycles. Restart the daemon to pick up configuration changes.

@@ -1,5 +1,7 @@
 # crewbit
 
+> **Warning:** crewbit spawns Claude Code with `--dangerously-skip-permissions`, which disables all permission prompts. Claude will be able to read, write, and execute anything your shell user can. Only run crewbit in environments you trust and with slash commands you have reviewed.
+
 Give life to an AI agent with a single command.
 
 ```bash

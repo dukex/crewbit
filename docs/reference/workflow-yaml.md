@@ -50,3 +50,20 @@ Full specification of the crewbit workflow configuration file.
 | Field                | Type   | Description                                       |
 | -------------------- | ------ | ------------------------------------------------- |
 | `planCommentMarker`  | string | Prefix that identifies a plan comment on the issue |
+
+## `providers.github-projects`
+
+| Field           | Type   | Required | Description                                        |
+| --------------- | ------ | -------- | -------------------------------------------------- |
+| `owner`         | string | yes      | GitHub organization or user login                  |
+| `projectNumber` | number | yes      | Project number from the GitHub URL                 |
+
+## Environment variable overrides
+
+| Variable              | Overrides                       |
+| --------------------- | ------------------------------- |
+| `WAIT_SECONDS`        | `daemon.waitSeconds`            |
+| `MAX_SESSION_SECONDS` | `daemon.maxSessionSeconds`      |
+| `JIRA_EMAIL`          | Jira account email              |
+| `JIRA_API_TOKEN`      | Jira API token                  |
+| `GITHUB_TOKEN`        | GitHub personal access token    |
