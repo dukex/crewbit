@@ -20,10 +20,13 @@ crewbit is a daemon that watches an issue tracker, picks up work in priority ord
 **Binary (recommended):**
 
 ```bash
-# macOS / Linux — download the latest release
-curl -fsSL https://github.com/dukex/crewbit/releases/latest/download/crewbit-$(uname -s)-$(uname -m) -o crewbit
-chmod +x crewbit
-sudo mv crewbit /usr/local/bin/
+curl -fsSL https://crewbit.sh/install | sh
+```
+
+Installs the latest release to `/usr/local/bin/crewbit`. Override the directory:
+
+```bash
+CREWBIT_INSTALL_DIR=~/.local/bin curl -fsSL https://crewbit.sh/install | sh
 ```
 
 **From source (requires [Bun](https://bun.sh)):**

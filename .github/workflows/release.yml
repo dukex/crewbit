@@ -1,0 +1,80 @@
+name: Release
+
+on:
+  push:
+    branches: [master, main]
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  release:
+    name: Semantic release
+    runs-on: ubuntu-latest
+    outputs:
+      published: ${{ steps.semantic.outputs.new_release_published }}
+      version: ${{ steps.semantic.outputs.new_release_version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install semantic-release
+        run: >
+          npm install -g
+          semantic-release
+          @semantic-release/changelog
+          @semantic-release/git
+          @semantic-release/github
+          @semantic-release/commit-analyzer
+          @semantic-release/release-notes-generator
+
+      - name: Release
+        id: semantic
+        run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build:
+    name: Build ${{ matrix.artifact }}
+    needs: release
+    if: needs.release.outputs.published == 'true'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: bun-linux-x64
+            artifact: crewbit-linux-x64
+          - os: ubuntu-latest
+            target: bun-linux-arm64
+            artifact: crewbit-linux-arm64
+          - os: macos-latest
+            target: bun-darwin-arm64
+            artifact: crewbit-darwin-arm64
+          - os: macos-13
+            target: bun-darwin-x64
+            artifact: crewbit-darwin-x64
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: v${{ needs.release.outputs.version }}
+
+      - uses: oven-sh/setup-bun@v2
+
+      - run: bun install --frozen-lockfile
+
+      - name: Build binary
+        run: bun build --compile --target=${{ matrix.target }} daemon.ts --outfile ${{ matrix.artifact }}
+
+      - name: Upload asset to release
+        run: gh release upload "v${{ needs.release.outputs.version }}" "${{ matrix.artifact }}" --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
