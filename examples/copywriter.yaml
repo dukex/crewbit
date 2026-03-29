@@ -5,9 +5,9 @@ providers:
     baseUrl: https://your-org.atlassian.net
     projectKey: MKT
     transitionIds:
-      Start: "41"     # To Do → Drafting
-      ToReview: "42"  # Drafting → In Review
-      Done: "43"      # Approved → Published
+      Start: "41" # To Do → Drafting
+      ToReview: "42" # Drafting → In Review
+      Done: "43" # Approved → Published
     issueTypes:
       subtask: "10002"
 
@@ -21,7 +21,7 @@ transitions:
     command: /draft-copy
 
 agent:
-  planCommentMarker: "Claude draft"
+  planCommentMarker: "Crewbit draft"
 
 daemon:
   waitSeconds: 60

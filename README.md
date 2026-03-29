@@ -44,16 +44,16 @@ sudo mv crewbit /usr/local/bin/
 crewbit <path-to-workflow.yaml> [--dry-run]
 ```
 
-| Flag | Description |
-|------|-------------|
+| Flag        | Description                                  |
+| ----------- | -------------------------------------------- |
 | `--dry-run` | Print what would run without spawning Claude |
 
 Environment variables override daemon config:
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `WAIT_SECONDS` | from yaml | Polling interval when queue is empty |
-| `MAX_SESSION_SECONDS` | from yaml | Hard timeout per Claude session |
+| Variable              | Default   | Description                          |
+| --------------------- | --------- | ------------------------------------ |
+| `WAIT_SECONDS`        | from yaml | Polling interval when queue is empty |
+| `MAX_SESSION_SECONDS` | from yaml | Hard timeout per Claude session      |
 
 ## Workflow YAML
 
@@ -65,9 +65,9 @@ providers:
     baseUrl: https://your-org.atlassian.net
     projectKey: KAN
     transitionIds:
-      Start: "21"     # To Do → In Progress
-      ToReview: "9"   # In Progress → In Review
-      Done: "6"       # Accepted → Done
+      Start: "21" # To Do → In Progress
+      ToReview: "9" # In Progress → In Review
+      Done: "6" # Accepted → Done
     issueTypes:
       subtask: "10002"
 
@@ -81,7 +81,7 @@ transitions:
     command: /develop
 
 agent:
-  planCommentMarker: "Claude plan"
+  planCommentMarker: "Crewbit plan"
 
 daemon:
   waitSeconds: 30
@@ -101,13 +101,13 @@ See [`examples/`](./examples) for ready-to-use personas.
 
 ## Examples
 
-| File | What it does |
-|------|-------------|
+| File                                                     | What it does                               |
+| -------------------------------------------------------- | ------------------------------------------ |
 | [`examples/dev-junior.yaml`](./examples/dev-junior.yaml) | Implements tickets and merges accepted PRs |
-| [`examples/releaser.yaml`](./examples/releaser.yaml) | Runs the release process |
-| [`examples/copywriter.yaml`](./examples/copywriter.yaml) | Drafts and publishes marketing copy |
-| [`examples/qa-bot.yaml`](./examples/qa-bot.yaml) | Runs test suites and reports results |
-| [`examples/translator.yaml`](./examples/translator.yaml) | Translates i18n tickets |
+| [`examples/releaser.yaml`](./examples/releaser.yaml)     | Runs the release process                   |
+| [`examples/copywriter.yaml`](./examples/copywriter.yaml) | Drafts and publishes marketing copy        |
+| [`examples/qa-bot.yaml`](./examples/qa-bot.yaml)         | Runs test suites and reports results       |
+| [`examples/translator.yaml`](./examples/translator.yaml) | Translates i18n tickets                    |
 
 ## Environment variables (Jira provider)
 

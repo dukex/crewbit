@@ -5,9 +5,9 @@ providers:
     baseUrl: https://your-org.atlassian.net
     projectKey: QA
     transitionIds:
-      Start: "51"     # To Test → Testing
-      Pass: "52"      # Testing → Passed
-      Fail: "53"      # Testing → Failed
+      Start: "51" # To Test → Testing
+      Pass: "52" # Testing → Passed
+      Fail: "53" # Testing → Failed
     issueTypes:
       subtask: "10002"
 
@@ -18,7 +18,7 @@ transitions:
     command: /run-tests
 
 agent:
-  planCommentMarker: "Claude QA plan"
+  planCommentMarker: "Crewbit QA plan"
 
 daemon:
   waitSeconds: 30

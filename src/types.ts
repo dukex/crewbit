@@ -26,10 +26,10 @@ export interface WorkflowConfig {
     [key: string]: unknown;
   };
   transitions: Record<string, TransitionConfig>;
-  agent: {
+  agent?: {
     planCommentMarker: string;
   };
-  daemon: {
+  daemon?: {
     waitSeconds: number;
     maxSessionSeconds: number;
     worktreePrefix: string;

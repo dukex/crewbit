@@ -5,8 +5,8 @@ providers:
     baseUrl: https://your-org.atlassian.net
     projectKey: REL
     transitionIds:
-      Start: "31"     # Queued → In Progress
-      Done: "32"      # In Progress → Released
+      Start: "31" # Queued → In Progress
+      Done: "32" # In Progress → Released
     issueTypes:
       subtask: "10002"
 
@@ -17,7 +17,7 @@ transitions:
     command: /release
 
 agent:
-  planCommentMarker: "Claude release plan"
+  planCommentMarker: "Crewbit release plan"
 
 daemon:
   waitSeconds: 60

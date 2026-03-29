@@ -5,8 +5,8 @@ providers:
     baseUrl: https://your-org.atlassian.net
     projectKey: I18N
     transitionIds:
-      Start: "61"     # To Translate → In Progress
-      Done: "62"      # In Progress → Done
+      Start: "61" # To Translate → In Progress
+      Done: "62" # In Progress → Done
     issueTypes:
       subtask: "10002"
 
@@ -17,7 +17,7 @@ transitions:
     command: /translate
 
 agent:
-  planCommentMarker: "Claude translation plan"
+  planCommentMarker: "Crewbit translation plan"
 
 daemon:
   waitSeconds: 30

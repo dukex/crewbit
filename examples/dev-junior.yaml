@@ -5,9 +5,9 @@ providers:
     baseUrl: https://your-org.atlassian.net
     projectKey: KAN
     transitionIds:
-      Start: "21"     # To Do → In Progress
-      ToReview: "9"   # In Progress → In Review
-      Done: "6"       # Accepted → Done
+      Start: "21" # To Do → In Progress
+      ToReview: "9" # In Progress → In Review
+      Done: "6" # Accepted → Done
     issueTypes:
       subtask: "10002"
 
@@ -21,7 +21,7 @@ transitions:
     command: /develop
 
 agent:
-  planCommentMarker: "Claude plan"
+  planCommentMarker: "Crewbit plan"
 
 daemon:
   waitSeconds: 30

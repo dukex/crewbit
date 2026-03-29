@@ -52,7 +52,7 @@ async function runClaude(
   }
 
   const maxSeconds = Number(
-    process.env.MAX_SESSION_SECONDS ?? config.daemon.maxSessionSeconds,
+    process.env.MAX_SESSION_SECONDS ?? config.daemon?.maxSessionSeconds ?? 900,
   );
 
   // Strip env vars injected by Claude Code / VSCode that break child claude processes
@@ -72,7 +72,7 @@ async function runClaude(
   // Create an isolated git worktree so Claude works on a separate checkout.
   // -w + --print are incompatible in Claude CLI, so we create the worktree
   // manually and pass cwd instead.
-  const worktreeName = `${config.daemon.worktreePrefix}-${action.issueKey}`;
+  const worktreeName = `${config.daemon?.worktreePrefix ?? "crewbit"}-${action.issueKey}`;
   const worktreePath = resolve(REPO_ROOT, ".claude/worktrees", worktreeName);
   const worktreeBranch = `worktree-${worktreeName}`;
 
@@ -220,7 +220,7 @@ async function main(): Promise<void> {
 
       const config = await loadConfig(configPath);
       const waitSeconds = Number(
-        process.env.WAIT_SECONDS ?? config.daemon.waitSeconds,
+        process.env.WAIT_SECONDS ?? config.daemon?.waitSeconds ?? 60,
       );
 
       const provider = createProvider(config);

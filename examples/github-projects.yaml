@@ -12,7 +12,7 @@ transitions:
     command: /develop
 
 agent:
-  planCommentMarker: "Claude plan"
+  planCommentMarker: "Crewbit plan"
 
 daemon:
   waitSeconds: 30
