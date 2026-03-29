@@ -10,7 +10,7 @@ providers:
 
 transitions:
   Start:
-    from: Todo
+    from: Ready
     command: /develop
   Done:
     from: In Review
