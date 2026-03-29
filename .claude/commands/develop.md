@@ -221,10 +221,11 @@ mise exec -- node_modules/.bin/biome check .                 # no lint/format er
    b. Run the item query (Helper query #2) again to get the current `itemId` for NUMBER.
 
    c. Run the mutation (Helper query #3) with the **"In review"** `optionId`. Verify the mutation returns without errors before proceeding.
+
 4. Post a closing comment:
 
    ```sh
-   gh issue comment NUMBER --repo dukex/crewbit --body "# Claude plan — completed
+   gh issue comment NUMBER --repo dukex/crewbit --body "# Crewbit plan — completed
 
    All steps done. AC verified. PR opened.
    PR: <PR URL>

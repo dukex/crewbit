@@ -9,9 +9,9 @@ providers:
     projectNumber: 6
 
 transitions:
+  Continue:
+    from: In progress
+    command: /develop
   Start:
     from: Ready
     command: /develop
-  Done:
-    from: In Review
-    command: /merge
