@@ -51,7 +51,7 @@ The method must only return issues assigned to the authenticated user. The crede
 
 **Error handling**
 
-Do not throw from this method. If the provider API returns an error, log it and resolve with `[]` so the daemon can continue polling. Reserve throwing for `getComments`, where a bad issue key is a programmer error rather than a transient state.
+Throw an `Error` on any API or network failure — non-2xx HTTP responses, GraphQL errors, timeouts, etc. The daemon wraps `resolveNextAction` in a try-catch and retries after 60 s, so surfacing errors is the correct behaviour. Return an empty array only when the API call succeeds but no issues match the status and assignee filter — that is the normal "queue empty" case, not an error.
 
 ### `getComments(issueKey: string): Promise<Comment[]>`
 
