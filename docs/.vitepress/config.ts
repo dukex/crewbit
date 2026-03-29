@@ -4,6 +4,7 @@ export default defineConfig({
   title: "crewbit",
   description: "Give life to an AI agent with a single command.",
   base: "/",
+  appearance: "force-dark",
 
   themeConfig: {
     nav: [
