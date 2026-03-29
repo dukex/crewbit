@@ -51,7 +51,7 @@ The method must only return issues assigned to the authenticated user. The crede
 
 **Error handling**
 
-Throw an `Error` when the provider API returns a non-recoverable error (e.g. 4xx, 5xx). The daemon wraps `resolveNextAction` in a try-catch and backs off before retrying, so surfacing API errors is the correct behaviour. Return an empty array only when the API call succeeds but no issues match the status and assignee filter — that is the normal "queue empty" case, not an error.
+Throw an `Error` on any API or network failure — non-2xx HTTP responses, GraphQL errors, timeouts, etc. The daemon wraps `resolveNextAction` in a try-catch and retries after 60 s, so surfacing errors is the correct behaviour. Return an empty array only when the API call succeeds but no issues match the status and assignee filter — that is the normal "queue empty" case, not an error.
 
 ### `getComments(issueKey: string): Promise<Comment[]>`
 
