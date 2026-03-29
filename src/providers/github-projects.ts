@@ -45,10 +45,6 @@ export class GitHubProjectsProvider implements IssueProvider {
       body: JSON.stringify({ query, variables }),
     });
 
-    log(
-      `[GitHub API] ${query.replace(/\s+/g, " ").trim()} - variables: ${JSON.stringify(variables)}`,
-    );
-
     if (!response.ok) {
       throw new Error(`GitHub API failed: ${response.status} ${await response.text()}`);
     }
@@ -102,12 +98,16 @@ export class GitHubProjectsProvider implements IssueProvider {
 
     if (ownerType === "organization") {
       const data = await this.graphql<{
-        organization: { projectV2: { items: { nodes: ProjectItem[]; pageInfo: PageInfo } } };
+        organization: {
+          projectV2: { items: { nodes: ProjectItem[]; pageInfo: PageInfo } };
+        };
       }>(query, { owner: this.owner, number: this.projectNumber, cursor });
       return data.organization.projectV2.items;
     }
     const data = await this.graphql<{
-      user: { projectV2: { items: { nodes: ProjectItem[]; pageInfo: PageInfo } } };
+      user: {
+        projectV2: { items: { nodes: ProjectItem[]; pageInfo: PageInfo } };
+      };
     }>(query, { owner: this.owner, number: this.projectNumber, cursor });
     return data.user.projectV2.items;
   }

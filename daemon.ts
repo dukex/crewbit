@@ -2,11 +2,7 @@
 import { execSync, spawn, spawnSync } from "child_process";
 import { resolve } from "path";
 import type { QueueAction, WorkflowConfig } from "./src/types.js";
-import {
-  createProvider,
-  loadConfig,
-  resolveNextAction,
-} from "./src/workflow.js";
+import { createProvider, loadConfig, resolveNextAction } from "./src/workflow.js";
 
 const REPO_ROOT = process.cwd();
 
@@ -22,8 +18,7 @@ function parseArgs(): { configPath: string; dryRun: boolean } {
   }
 
   throw new Error(
-    "Usage: crewbit <path-to-workflow.yaml> [--dry-run]\n" +
-      "Example: crewbit ./dev-junior.yaml",
+    "Usage: crewbit <path-to-workflow.yaml> [--dry-run]\n" + "Example: crewbit ./dev-junior.yaml",
   );
 }
 
@@ -134,12 +129,7 @@ async function runClaude(
 
     const child = spawn(
       "claude",
-      [
-        "--dangerously-skip-permissions",
-        "--no-session-persistence",
-        "--print",
-        prompt,
-      ],
+      ["--dangerously-skip-permissions", "--no-session-persistence", "--print", prompt],
       {
         stdio: ["ignore", "pipe", "pipe"],
         cwd: worktreePath,
@@ -177,9 +167,7 @@ async function runClaude(
     child.on("close", (code, signal) => {
       cleanupWorktree();
       if (signal) {
-        log(
-          `[WARN] Claude killed by signal: ${signal} (timeout=${maxSeconds}s)`,
-        );
+        log(`[WARN] Claude killed by signal: ${signal} (timeout=${maxSeconds}s)`);
         if (tail.length > 0) log(`[TAIL]\n${tail.join("\n")}`);
         resolve(false);
       } else if (code !== 0) {
@@ -219,17 +207,13 @@ async function main(): Promise<void> {
       exp = Math.min(exp, 10); // Cap backoff at 10x
 
       const config = await loadConfig(configPath);
-      const waitSeconds = Number(
-        process.env.WAIT_SECONDS ?? config.daemon?.waitSeconds ?? 60,
-      );
+      const waitSeconds = Number(process.env.WAIT_SECONDS ?? config.daemon?.waitSeconds ?? 60);
 
       const provider = createProvider(config);
       const action = await resolveNextAction(config, provider);
 
       if (action.type === "idle") {
-        log(
-          `Queue empty. Next check in ${waitSeconds * exp}s. (Ctrl+C to stop)`,
-        );
+        log(`Queue empty. Next check in ${waitSeconds * exp}s. (Ctrl+C to stop)`);
         await sleep(waitSeconds * exp);
         exp *= 2;
       } else {

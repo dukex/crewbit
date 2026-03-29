@@ -1,9 +1,4 @@
-import type {
-  IssueProvider,
-  Issue,
-  Comment,
-  JiraProviderConfig,
-} from "../types.js";
+import type { Comment, Issue, IssueProvider, JiraProviderConfig } from "../types.js";
 
 interface AdfNode {
   type: string;
@@ -27,9 +22,7 @@ export class JiraProvider implements IssueProvider {
     const token = process.env.JIRA_API_TOKEN;
 
     if (!email || !token) {
-      throw new Error(
-        "JIRA_EMAIL and JIRA_API_TOKEN environment variables are required",
-      );
+      throw new Error("JIRA_EMAIL and JIRA_API_TOKEN environment variables are required");
     }
 
     this.baseUrl = config.baseUrl;
@@ -49,9 +42,7 @@ export class JiraProvider implements IssueProvider {
     });
 
     if (!response.ok) {
-      throw new Error(
-        `Jira search failed: ${response.status} ${await response.text()}`,
-      );
+      throw new Error(`Jira search failed: ${response.status} ${await response.text()}`);
     }
 
     const data = (await response.json()) as {

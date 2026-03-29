@@ -1,7 +1,7 @@
-import { describe, it, beforeEach, afterEach, mock } from "node:test";
 import assert from "node:assert/strict";
-import { GitHubProjectsProvider } from "./github-projects.js";
+import { afterEach, beforeEach, describe, it, mock } from "node:test";
 import type { GitHubProjectsProviderConfig } from "../types.js";
+import { GitHubProjectsProvider } from "./github-projects.js";
 
 const config: GitHubProjectsProviderConfig = {
   owner: "my-org",

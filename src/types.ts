@@ -53,6 +53,4 @@ export interface JiraProviderConfig {
   issueTypes: Record<string, string>;
 }
 
-export type QueueAction =
-  | { type: "run"; issueKey: string; command: string }
-  | { type: "idle" };
+export type QueueAction = { type: "run"; issueKey: string; command: string } | { type: "idle" };
