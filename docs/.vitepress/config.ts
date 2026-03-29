@@ -19,7 +19,10 @@ export default defineConfig({
       },
       {
         text: "How-to Guides",
-        items: [{ text: "Configure a workflow", link: "/how-to/configure-workflow" }],
+        items: [
+          { text: "Configure a workflow", link: "/how-to/configure-workflow" },
+          { text: "Debug a session", link: "/how-to/debug" },
+        ],
       },
       {
         text: "Reference",
