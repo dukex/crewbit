@@ -190,7 +190,7 @@ async function main(): Promise<void> {
   const { configPath, dryRun } = parseArgs();
   let exp = 1;
 
-  log(`orchestrator starting${dryRun ? " (dry-run)" : ""}`);
+  log(`crewbit starting${dryRun ? " (dry-run)" : ""}`);
   log(`Config: ${configPath}`);
 
   process.on("SIGINT", () => {
