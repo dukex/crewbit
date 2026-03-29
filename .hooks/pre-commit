@@ -1,0 +1,4 @@
+#!/bin/sh
+set -e
+./node_modules/.bin/biome check --fix --unsafe .
+git add -u

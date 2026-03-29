@@ -47,12 +47,12 @@ describe("GitHubProjectsProvider", () => {
 
   afterEach(() => {
     mock.restoreAll();
-    delete process.env.GITHUB_TOKEN;
+    process.env.GITHUB_TOKEN = undefined;
   });
 
   describe("constructor", () => {
     it("throws when GITHUB_TOKEN is missing", () => {
-      delete process.env.GITHUB_TOKEN;
+      process.env.GITHUB_TOKEN = undefined;
       assert.throws(() => new GitHubProjectsProvider(config), /GITHUB_TOKEN/);
     });
   });

@@ -1,0 +1,17 @@
+# This is a real configura to work in this project
+# Run it as `crewbit dev-junior` and it will pick up issues from the backlog and implement them.
+
+provider: github-projects
+
+providers:
+  github-projects:
+    owner: dukex
+    projectNumber: 6
+
+transitions:
+  Start:
+    from: Todo
+    command: /develop
+  Done:
+    from: In Review
+    command: /merge

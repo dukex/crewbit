@@ -1,6 +1,6 @@
 #!/usr/bin/env tsx
-import { execSync, spawn, spawnSync } from "child_process";
-import { resolve } from "path";
+import { execSync, spawn, spawnSync } from "node:child_process";
+import { resolve } from "node:path";
 import type { QueueAction, WorkflowConfig } from "./src/types.js";
 import { createProvider, loadConfig, resolveNextAction } from "./src/workflow.js";
 
@@ -175,7 +175,7 @@ async function runClaude(
         if (tail.length > 0) log(`[TAIL]\n${tail.join("\n")}`);
         resolve(false);
       } else {
-        log(`[OK] Claude session finished cleanly (exit 0)`);
+        log("[OK] Claude session finished cleanly (exit 0)");
         resolve(true);
       }
     });

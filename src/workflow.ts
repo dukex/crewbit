@@ -1,5 +1,5 @@
-import { readFileSync } from "fs";
-import { resolve } from "path";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import yaml from "js-yaml";
 import { GitHubProjectsProvider } from "./providers/github-projects.js";
 import { JiraProvider } from "./providers/jira.js";
