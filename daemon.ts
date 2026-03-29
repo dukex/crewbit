@@ -112,7 +112,7 @@ async function runClaude(
         stdio: "pipe",
       });
     } catch {}
-    // Only delete the temp branch — the feature branch (KAN-xxx/...) must stay
+    // Only delete the temp branch — the feature branch (JIR-xxx/...) must stay
     const listed = spawnSync("git", ["branch", "--format=%(refname:short)"], {
       cwd: REPO_ROOT,
       encoding: "utf8",
