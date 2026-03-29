@@ -1,16 +1,16 @@
 #!/usr/bin/env tsx
-import { spawn, execSync, spawnSync } from "child_process";
-import { resolve, dirname } from "path";
-import { fileURLToPath } from "url";
+import { execSync, spawn, spawnSync } from "child_process";
+import { resolve } from "path";
+import type { QueueAction, WorkflowConfig } from "./src/types.js";
 import {
-  loadConfig,
   createProvider,
+  loadConfig,
   resolveNextAction,
 } from "./src/workflow.js";
-import type { QueueAction, WorkflowConfig } from "./src/types.js";
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = resolve(HERE, "../..");
+const REPO_ROOT = process.cwd();
+
+console.log(`Starting crewbit daemon (repo root: ${REPO_ROOT})...`);
 
 function parseArgs(): { configPath: string; dryRun: boolean } {
   const args = process.argv.slice(2);
