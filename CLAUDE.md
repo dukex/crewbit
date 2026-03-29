@@ -60,6 +60,8 @@ We work as XP (eXtreme Programming) pair programmers. These rules are **mandator
 6. **TDD cycle** — Red → Green → Refactor. No exceptions.
 7. **[IMPORTANT] E2E / regression tests** — After implementing a full feature or user flow, write an E2E test that exercises the integrated path. Unit tests catch isolated logic errors; E2E tests catch integration bugs that are invisible to unit tests.
 8. **Atomic conventional commits** — Commit often, one logical change per commit. Use conventional commit format. `feat:` and `fix:` messages target the final user (they generate the changelog) — write them as user-facing descriptions, promoting the new feature, not technical notes.
+   - **[IMPORTANT] `feat:` and `fix:` are ONLY for changes the end user directly experiences** — new capabilities, changed behaviours, or fixed bugs in the product itself. Internal work (docs, CI, test infra, site design, refactors, dependency bumps, tooling) must use `docs:`, `ci:`, `test:`, `style:`, `refactor:`, or `chore:` accordingly.
+   - Examples of things that are **NOT** `feat:` or `fix:`: updating site colours, adding a VitePress docs portal, fixing a GitHub Actions workflow, adding `.nojekyll`, bumping pnpm version, adding/updating tests.
 9. **[IMPORTANT] Always commit and push** — After every change, commit with a conventional commit message and push to remote immediately.
 
 ## Basic Rules
