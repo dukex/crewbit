@@ -1,0 +1,25 @@
+provider: jira
+
+providers:
+  jira:
+    baseUrl: https://your-org.atlassian.net
+    projectKey: REL
+    transitionIds:
+      Start: "31"     # Queued → In Progress
+      Done: "32"      # In Progress → Released
+    issueTypes:
+      subtask: "10002"
+
+# Picks up release tickets, runs the release process, and closes them when done.
+transitions:
+  Start:
+    from: Queued
+    command: /release
+
+agent:
+  planCommentMarker: "Claude release plan"
+
+daemon:
+  waitSeconds: 60
+  maxSessionSeconds: 3600
+  worktreePrefix: releaser

@@ -1,6 +1,5 @@
 #!/usr/bin/env tsx
 import { spawn, execSync, spawnSync } from "child_process";
-import { existsSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import {
@@ -15,19 +14,16 @@ const REPO_ROOT = resolve(HERE, "../..");
 
 function parseArgs(): { configPath: string; dryRun: boolean } {
   const args = process.argv.slice(2);
-  const configIndex = args.indexOf("--config");
   const dryRun = args.includes("--dry-run");
+  const positional = args.find((arg) => !arg.startsWith("--"));
 
-  if (configIndex !== -1 && args[configIndex + 1]) {
-    return { configPath: resolve(args[configIndex + 1]), dryRun };
+  if (positional) {
+    return { configPath: resolve(positional), dryRun };
   }
 
-  // Default: look for workflow.yaml one level up (e.g. team/dev-junior/workflow.yaml)
-  // when run from inside the orchestrator directory.
-  // Caller should always pass --config explicitly for clarity.
   throw new Error(
-    "Missing required argument: --config <path-to-workflow.yaml>\n" +
-      "Example: tsx daemon.ts --config ../dev-junior/workflow.yaml",
+    "Usage: crewbit <path-to-workflow.yaml> [--dry-run]\n" +
+      "Example: crewbit ./dev-junior.yaml",
   );
 }
 
@@ -46,10 +42,9 @@ async function runClaude(
 ): Promise<boolean> {
   if (action.type === "idle") return true;
 
-  const cmd = config.commands[action.type];
-  const prompt = `${cmd.invoke} ${action.issueKey}`;
+  const prompt = `${action.command} ${action.issueKey}`;
 
-  log(`[${action.type.toUpperCase()}] ${action.issueKey}`);
+  log(`[RUN] ${action.command} ${action.issueKey}`);
 
   if (dryRun) {
     log(`[dry-run] would run: claude --print '${prompt}'`);

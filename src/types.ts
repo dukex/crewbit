@@ -13,52 +13,40 @@ export interface IssueProvider {
   getComments(issueKey: string): Promise<Comment[]>;
 }
 
+export interface TransitionConfig {
+  from: string;
+  command: string;
+}
+
 export interface WorkflowConfig {
   provider: string;
   providers: {
     jira?: JiraProviderConfig;
     [key: string]: unknown;
   };
-  statuses: Record<string, string>;
-  transitions: Record<string, { from: string; to: string }>;
-  queue: string[];
+  transitions: Record<string, TransitionConfig>;
   agent: {
     planCommentMarker: string;
-  };
-  commands: {
-    merge: CommandConfig;
-    develop: CommandConfig;
-  };
-  git: {
-    defaultBranch: string;
-    branchPattern: string;
-    slugMaxLength: number;
-  };
-  pr: {
-    mergeStrategy: "squash" | "merge" | "rebase";
-    deleteBranchOnMerge: boolean;
-    targetBranch: string;
   };
   daemon: {
     waitSeconds: number;
     maxSessionSeconds: number;
     worktreePrefix: string;
   };
+  git?: {
+    defaultBranch: string;
+    branchPattern: string;
+    slugMaxLength: number;
+  };
 }
 
 export interface JiraProviderConfig {
   baseUrl: string;
   projectKey: string;
-  projectId: string;
   transitionIds: Record<string, string>;
   issueTypes: Record<string, string>;
 }
 
-export interface CommandConfig {
-  invoke: string;
-}
-
 export type QueueAction =
-  | { type: "merge"; issueKey: string }
-  | { type: "develop"; issueKey: string }
+  | { type: "run"; issueKey: string; command: string }
   | { type: "idle" };

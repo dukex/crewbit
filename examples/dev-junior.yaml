@@ -1,0 +1,34 @@
+provider: jira
+
+providers:
+  jira:
+    baseUrl: https://your-org.atlassian.net
+    projectKey: KAN
+    transitionIds:
+      Start: "21"     # To Do → In Progress
+      ToReview: "9"   # In Progress → In Review
+      Done: "6"       # Accepted → Done
+    issueTypes:
+      subtask: "10002"
+
+# Picks up tasks from the backlog, implements them, and merges when accepted.
+transitions:
+  Done:
+    from: Accepted
+    command: /merge
+  Start:
+    from: To Do
+    command: /develop
+
+agent:
+  planCommentMarker: "Claude plan"
+
+daemon:
+  waitSeconds: 30
+  maxSessionSeconds: 7200
+  worktreePrefix: dev-junior
+
+git:
+  defaultBranch: main
+  branchPattern: "{issueKey}/{slug}"
+  slugMaxLength: 40

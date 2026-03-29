@@ -1,0 +1,29 @@
+provider: jira
+
+providers:
+  jira:
+    baseUrl: https://your-org.atlassian.net
+    projectKey: MKT
+    transitionIds:
+      Start: "41"     # To Do → Drafting
+      ToReview: "42"  # Drafting → In Review
+      Done: "43"      # Approved → Published
+    issueTypes:
+      subtask: "10002"
+
+# Drafts copy for marketing tickets and publishes approved content.
+transitions:
+  Done:
+    from: Approved
+    command: /publish
+  Start:
+    from: To Do
+    command: /draft-copy
+
+agent:
+  planCommentMarker: "Claude draft"
+
+daemon:
+  waitSeconds: 60
+  maxSessionSeconds: 1800
+  worktreePrefix: copywriter

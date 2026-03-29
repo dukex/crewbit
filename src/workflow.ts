@@ -1,13 +1,11 @@
 import { readFileSync } from 'fs'
-import { resolve, dirname } from 'path'
-import { fileURLToPath } from 'url'
+import { resolve } from 'path'
 import yaml from 'js-yaml'
 import type { WorkflowConfig, IssueProvider, QueueAction } from './types.js'
 import { JiraProvider } from './providers/jira.js'
 
-export function loadConfig(workflowPath?: string): WorkflowConfig {
-  const configPath = workflowPath ?? resolve(dirname(fileURLToPath(import.meta.url)), '../workflow.yaml')
-  const raw = readFileSync(configPath, 'utf8')
+export function loadConfig(workflowPath: string): WorkflowConfig {
+  const raw = readFileSync(resolve(workflowPath), 'utf8')
   return yaml.load(raw) as WorkflowConfig
 }
 
@@ -27,35 +25,11 @@ export async function resolveNextAction(
   config: WorkflowConfig,
   provider: IssueProvider,
 ): Promise<QueueAction> {
-  for (const statusKey of config.queue) {
-    const statusLabel = config.statuses[statusKey]
-    if (!statusLabel) {
-      console.warn(`[workflow] queue entry "${statusKey}" has no matching status label — skipping`)
-      continue
-    }
-
-    const issues = await provider.getIssuesByStatus(statusLabel)
-
-    if (statusKey === 'accepted' && issues.length > 0) {
-      return { type: 'merge', issueKey: issues[0].key }
-    }
-
-    if (statusKey === 'in_progress') {
-      for (const issue of issues) {
-        const comments = await provider.getComments(issue.key)
-        const isAgentStarted = comments.some(c =>
-          c.body.startsWith(config.agent.planCommentMarker),
-        )
-        if (isAgentStarted) {
-          return { type: 'develop', issueKey: issue.key }
-        }
-      }
-    }
-
-    if (statusKey === 'todo' && issues.length > 0) {
-      return { type: 'develop', issueKey: issues[0].key }
+  for (const transition of Object.values(config.transitions)) {
+    const issues = await provider.getIssuesByStatus(transition.from)
+    if (issues.length > 0) {
+      return { type: 'run', issueKey: issues[0].key, command: transition.command }
     }
   }
-
   return { type: 'idle' }
 }

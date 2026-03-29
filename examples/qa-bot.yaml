@@ -1,0 +1,26 @@
+provider: jira
+
+providers:
+  jira:
+    baseUrl: https://your-org.atlassian.net
+    projectKey: QA
+    transitionIds:
+      Start: "51"     # To Test → Testing
+      Pass: "52"      # Testing → Passed
+      Fail: "53"      # Testing → Failed
+    issueTypes:
+      subtask: "10002"
+
+# Picks up tickets ready for testing, runs the test suite, and reports results.
+transitions:
+  Start:
+    from: To Test
+    command: /run-tests
+
+agent:
+  planCommentMarker: "Claude QA plan"
+
+daemon:
+  waitSeconds: 30
+  maxSessionSeconds: 3600
+  worktreePrefix: qa-bot
