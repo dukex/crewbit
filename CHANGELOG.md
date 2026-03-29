@@ -1,3 +1,24 @@
+# [1.1.0](https://github.com/dukex/crewbit/compare/v1.0.3...v1.1.0) (2026-03-29)
+
+
+### Bug Fixes
+
+* add .nojekyll to dist so peaceiris can copy dotfiles without aborting ([119cdb1](https://github.com/dukex/crewbit/commit/119cdb137ce2adceb14ef950b3f9404f8e0c01e4))
+* make project board status transitions explicit in /develop command ([984f4e9](https://github.com/dukex/crewbit/commit/984f4e9c7da156f02aad390e1475fa7b3769b209))
+* now crewbit works with GitHub user accounts, not only organizations ([2db8507](https://github.com/dukex/crewbit/commit/2db8507ee90692548fc10d01f5176377f9424fac))
+* prevent docs deployment when build output is missing ([eaac5dd](https://github.com/dukex/crewbit/commit/eaac5dd1174e38cc5921ca8f16dd7546b977f614))
+* remove duplicate pnpm version from docs workflow ([ca78d29](https://github.com/dukex/crewbit/commit/ca78d29290dc46996c521740986bcf3e3caceab3))
+* repo root now resolves to the directory where crewbit is invoked ([e2d72ba](https://github.com/dukex/crewbit/commit/e2d72ba4fe6f92f4c1bb32ec3ecb8adbf045069d))
+* restore vitepress config with correct base, nav and sidebar ([5a85e7f](https://github.com/dukex/crewbit/commit/5a85e7f27470da6ab5001b1182c41f1fe672e8a5))
+
+
+### Features
+
+* add /develop slash command for implementing GitHub issues ([5024fe9](https://github.com/dukex/crewbit/commit/5024fe98ad183f4cf31404891e2676d7be33ea39))
+* add dark minimal theme with violet accent ([d9429c9](https://github.com/dukex/crewbit/commit/d9429c97ae3ed57890ebeff5f0945b1caa8b63af))
+* launch VitePress docs portal with GitHub Pages deployment ([#13](https://github.com/dukex/crewbit/issues/13)) ([330a049](https://github.com/dukex/crewbit/commit/330a049757cc7971217a68d912e8ec828e211024))
+* now crewbit can pick up issues from GitHub Projects v2 ([ddeae28](https://github.com/dukex/crewbit/commit/ddeae28d82003e3498befc3d0e481f03d86d2e70))
+
 ## [1.0.3](https://github.com/dukex/crewbit/compare/v1.0.2...v1.0.3) (2026-03-29)
 
 
