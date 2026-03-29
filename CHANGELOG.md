@@ -1,3 +1,11 @@
+## [1.0.3](https://github.com/dukex/crewbit/compare/v1.0.2...v1.0.3) (2026-03-29)
+
+
+### Bug Fixes
+
+* replace deprecated macos-13 runner with macos-latest for darwin-x64 build ([33cb4d4](https://github.com/dukex/crewbit/commit/33cb4d4291f1497f82aebe666b5d8869d7a91a6d))
+* resolve all build job failures in release workflow ([a12089d](https://github.com/dukex/crewbit/commit/a12089d8bccfb471c580217d17f221e8b79ccf50))
+
 ## [1.0.2](https://github.com/dukex/crewbit/compare/v1.0.1...v1.0.2) (2026-03-29)
 
 
