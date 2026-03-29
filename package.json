@@ -19,7 +19,10 @@
     "build": "bun build --compile --target=bun daemon.ts --outfile crewbit",
     "lint": "biome lint .",
     "format": "biome format --write .",
-    "check": "biome check --write ."
+    "check": "biome check --write .",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "dependencies": {
     "js-yaml": "^4.1.0"
@@ -28,7 +31,8 @@
     "@biomejs/biome": "^1.9.0",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^25.5.0",
-    "tsx": "^4.19.0"
+    "tsx": "^4.19.0",
+    "vitepress": "^1.6.3"
   },
   "packageManager": "pnpm@10.32.1+sha512.a706938f0e89ac1456b6563eab4edf1d1faf3368d1191fc5c59790e96dc918e4456ab2e67d613de1043d2e8c81f87303e6b40d4ffeca9df15ef1ad567348f2be"
 }
