@@ -9,18 +9,20 @@ Full specification of the crewbit workflow configuration file.
 | `provider`    | string | yes      | Issue provider name (`jira`)         |
 | `providers`   | object | yes      | Provider-specific configuration      |
 | `transitions` | object | yes      | Workflow transitions (order = priority) |
-| `agent`       | object | optional | Agent behavior settings              |
-| `daemon`      | object | optional | Daemon timing settings               |
-| `git`         | object | optional | Git branch settings                  |
+| `agent`       | object | no       | Agent behavior settings              |
+| `daemon`      | object | no       | Daemon timing settings               |
+| `git`         | object | no       | Git branch settings                  |
 
 ## `providers.jira`
 
-| Field           | Type   | Description                             |
-| --------------- | ------ | --------------------------------------- |
-| `baseUrl`       | string | Jira instance URL                       |
-| `projectKey`    | string | Jira project key (e.g. `KAN`)           |
-| `transitionIds` | object | Map of logical name → Jira numeric transition ID (e.g. `Start: "21"`) |
-| `issueTypes`    | object | Map of type name → Jira issue type ID   |
+| Field           | Type   | Required | Default | Description                             |
+| --------------- | ------ | -------- | ------- | --------------------------------------- |
+| `baseUrl`       | string | yes      | —       | Jira instance URL                       |
+| `projectKey`    | string | yes      | —       | Jira project key (e.g. `KAN`)           |
+| `transitionIds` | object | yes      | —       | Map of logical name → Jira numeric transition ID |
+| `issueTypes`    | object | yes      | —       | Map of type name → Jira issue type ID   |
+
+`transitionIds` maps a logical name to the numeric Jira transition ID (e.g. `Start: "21"`). Find IDs via the Jira REST API or project settings.
 
 ## `transitions.<name>`
 
@@ -42,14 +44,21 @@ Full specification of the crewbit workflow configuration file.
 | Field           | Type   | Default | Description                       |
 | --------------- | ------ | ------- | --------------------------------- |
 | `defaultBranch` | string | `main`  | Base branch for new worktrees     |
-| `branchPattern` | string | —       | Template for feature branch names. Supports tokens: `{issueKey}` (e.g. `PROJ-42`), `{slug}` (title lowercased, spaces replaced with `-`, truncated to `slugMaxLength`) |
+| `branchPattern` | string | —       | Template for feature branch names |
 | `slugMaxLength` | number | 40      | Max chars in the slug portion     |
+
+### `git.branchPattern` tokens
+
+- `{issueKey}`: The issue key from the provider (e.g. `PROJ-42`).
+- `{slug}`: A slugified version of the issue title — lowercased, spaces replaced with `-`, truncated to `git.slugMaxLength`.
+
+Example: `feature/{issueKey}/{slug}` → `feature/PROJ-42/fix-login-bug`.
 
 ## `agent`
 
 | Field                | Type   | Description                                       |
 | -------------------- | ------ | ------------------------------------------------- |
-| `planCommentMarker`  | string | Prefix that identifies a plan comment on the issue |
+| `planCommentMarker`  | string | Prefix that identifies a plan comment on the issue. When set, the Claude Code slash command (e.g. `/develop`) will look for a comment with this prefix to use as the execution plan. |
 
 ## `providers.github-projects`
 

@@ -2,15 +2,16 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "node:test";
+import { fileURLToPath } from "node:url";
 
-const docPath = join(import.meta.dirname, "..", "docs/reference/workflow-yaml.md");
+const currentDir = fileURLToPath(new URL(".", import.meta.url));
+const docPath = join(currentDir, "..", "docs/reference/workflow-yaml.md");
 const docContent = readFileSync(docPath, "utf8");
 
 describe("docs/reference/workflow-yaml.md", () => {
   describe("top-level fields completeness", () => {
     it("documents provider field with required and type", () => {
-      assert.match(docContent, /`provider`/);
-      assert.match(docContent, /Required|required/);
+      assert.match(docContent, /\|\s*`provider`\s*\|[^|]*\|\s*yes\b/);
     });
 
     it("documents providers field", () => {
@@ -21,9 +22,8 @@ describe("docs/reference/workflow-yaml.md", () => {
       assert.match(docContent, /`transitions`/);
     });
 
-    it("documents agent field as optional", () => {
-      assert.match(docContent, /`agent`/);
-      assert.match(docContent, /[Oo]ptional/);
+    it("documents agent field as not required", () => {
+      assert.match(docContent, /\|\s*`agent`\s*\|[^|]*\|\s*no\b/);
     });
 
     it("documents daemon field as optional with defaults", () => {
@@ -71,8 +71,11 @@ describe("docs/reference/workflow-yaml.md", () => {
 
   describe("agent.planCommentMarker explanation", () => {
     it("explains how Claude Code slash commands use planCommentMarker", () => {
-      assert.match(docContent, /`planCommentMarker`/);
-      assert.match(docContent, /slash command|\/develop|Claude Code command/i);
+      const agentSectionMatch = docContent.match(/## `agent`[\s\S]*?(?=^## |\Z)/m);
+      assert.ok(agentSectionMatch, "Expected an '## `agent`' section in the workflow-yaml docs");
+      const agentSection = agentSectionMatch[0];
+      assert.match(agentSection, /`planCommentMarker`/);
+      assert.match(agentSection, /slash command|\/develop|Claude Code command/i);
     });
   });
 
