@@ -15,7 +15,7 @@ loadConfig → createProvider → resolveNextAction → runClaude → repeat
 
 ## Transition order = priority
 
-The order you declare transitions in the YAML is the priority queue. If multiple transitions have pending issues at the same time, whichever is listed first wins the next cycle. This makes priorities explicit and auditable.
+The order you declare transitions in the YAML is the priority queue. If multiple transitions have pending issues at the same time, whichever is listed first wins the cycle (i.e., is selected next in the current resolution step). This makes priorities explicit and auditable.
 
 **Example — before:**
 
@@ -80,4 +80,4 @@ The tradeoff is that Claude can take any action your shell user can take — rea
 
 ## Per-cycle config reload
 
-The workflow YAML is reloaded on every daemon cycle, before each issue is fetched. This means you can edit your workflow file and the change takes effect on the next poll — no restart required. If the file has a parse error, the cycle fails and crewbit retries after 60 seconds.
+The workflow YAML is reloaded on every daemon cycle, before each issue is fetched. This means you can edit your workflow file and the change takes effect on the next poll — no restart required. If there’s any error during the cycle (for example, a YAML parse error), the cycle fails and crewbit retries after 60 seconds.
