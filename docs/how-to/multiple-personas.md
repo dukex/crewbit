@@ -1,81 +1,112 @@
 # Run multiple crewbit personas simultaneously
 
-This guide shows how to run more than one crewbit daemon at the same time, each with a different role.
+This guide explains how to run several crewbit daemons in parallel on the same repository — for example, a developer, a QA bot, and a release manager all working at the same time.
 
-## One YAML file per persona
+## Prerequisites
 
-Each daemon instance is driven by its own workflow YAML. Give every persona a unique `daemon.worktreePrefix`:
+Read [How crewbit works](../explanation/how-it-works.md) first, specifically the section on worktree isolation, before following this guide.
 
-`dev-junior.yaml`:
+## Make each daemon's `worktreePrefix` unique
+
+Every daemon must have a distinct `worktreePrefix` under `daemon:`:
 
 ```yaml
+# dev-junior.yaml
 daemon:
   worktreePrefix: dev-junior
-```
 
-`qa-agent.yaml`:
-
-```yaml
+# qa-bot.yaml
 daemon:
-  worktreePrefix: qa-agent
+  worktreePrefix: qa-bot
+
+# releaser.yaml
+daemon:
+  worktreePrefix: releaser
 ```
 
-crewbit names git worktrees and temporary branches using the prefix. If two daemons share a prefix they will try to create identically named branches and worktrees, which causes conflicts and unpredictable failures.
+**What breaks if two daemons share a prefix:** crewbit names its temporary worktree branches `worktree-<prefix>-<issueKey>`. Two daemons with the same prefix will attempt to create and delete the same branch name for the same issue. The second daemon to start will fail with a git error because the branch already exists, or — worse — the first daemon's worktree will be deleted mid-session when the second daemon cleans up after itself.
 
 ## Avoid transition overlap
 
-If two personas both watch the same `from` status they will race to claim the same issues. Assign each persona a unique status column:
+Two daemons should never be configured to pick up issues from the same status. If both `dev-junior.yaml` and `qa-bot.yaml` have a transition with `from: In Progress`, they will race to grab the same issue.
 
-| Persona | from status |
-|---|---|
-| dev-junior | Ready |
-| qa-agent | In Review |
+Partition statuses explicitly:
 
-This way each daemon operates on a separate part of the board and issues flow through the pipeline without contention.
+```yaml
+# dev-junior.yaml — owns "To Do" and "Accepted"
+transitions:
+  Done:
+    from: Accepted
+    command: /merge
+  Start:
+    from: To Do
+    command: /develop
 
-## Run as a systemd service (Linux)
+# qa-bot.yaml — owns "In Review"
+transitions:
+  Test:
+    from: In Review
+    command: /run-tests
+```
 
-Create a unit file for each persona, for example `/etc/systemd/system/crewbit-dev-junior.service`:
+Each status should appear as a `from` value in at most one daemon's config.
+
+## Separate log output per daemon
+
+Pass each daemon's output to its own log file when you start it. With a plain shell invocation:
+
+```bash
+crewbit ./dev-junior.yaml >> logs/dev-junior.log 2>&1 &
+crewbit ./qa-bot.yaml    >> logs/qa-bot.log    2>&1 &
+crewbit ./releaser.yaml  >> logs/releaser.log  2>&1 &
+```
+
+Each process writes to its own file so log lines from different daemons never interleave.
+
+## Run as a background service
+
+### systemd (Linux)
+
+Create one unit file per persona. Save the following as `/etc/systemd/system/crewbit-dev-junior.service`:
 
 ```ini
 [Unit]
-Description=crewbit dev-junior persona
+Description=crewbit dev-junior daemon
 After=network.target
 
 [Service]
 Type=simple
-User=deploy
-WorkingDirectory=/srv/myrepo
-EnvironmentFile=/etc/crewbit/dev-junior.env
-ExecStart=/usr/local/bin/crewbit /etc/crewbit/dev-junior.yaml
-StandardOutput=append:/var/log/crewbit/dev-junior.log
-StandardError=append:/var/log/crewbit/dev-junior.log
+User=youruser
+WorkingDirectory=/path/to/your/repo
+ExecStart=/usr/local/bin/crewbit /path/to/dev-junior.yaml
 Restart=on-failure
 RestartSec=10
+StandardOutput=append:/var/log/crewbit/dev-junior.log
+StandardError=append:/var/log/crewbit/dev-junior.log
+Environment=JIRA_EMAIL=you@example.com
+Environment=JIRA_API_TOKEN=your-token
 
 [Install]
 WantedBy=multi-user.target
 ```
 
-Store credentials in the `EnvironmentFile` (for example `JIRA_EMAIL`, `JIRA_API_TOKEN`, or `GITHUB_TOKEN`) so they are not in the unit file.
-
-Enable and start each service:
+Repeat with different names and config paths for each persona, then enable them:
 
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl enable --now crewbit-dev-junior
-sudo systemctl enable --now crewbit-qa-agent
+sudo systemctl enable --now crewbit-qa-bot
 ```
 
-Follow logs:
+Check logs with:
 
 ```bash
-journalctl -fu crewbit-dev-junior
+journalctl -u crewbit-dev-junior -f
 ```
 
-## Run as a launchd service (macOS)
+### launchd (macOS)
 
-Create a plist for each persona at `~/Library/LaunchAgents/com.crewbit.dev-junior.plist`:
+Save the following as `~/Library/LaunchAgents/sh.crewbit.dev-junior.plist`:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -84,23 +115,25 @@ Create a plist for each persona at `~/Library/LaunchAgents/com.crewbit.dev-junio
 <plist version="1.0">
 <dict>
   <key>Label</key>
-  <string>com.crewbit.dev-junior</string>
+  <string>sh.crewbit.dev-junior</string>
   <key>ProgramArguments</key>
   <array>
     <string>/usr/local/bin/crewbit</string>
-    <string>/Users/deploy/crewbit/dev-junior.yaml</string>
+    <string>/path/to/dev-junior.yaml</string>
   </array>
+  <key>WorkingDirectory</key>
+  <string>/path/to/your/repo</string>
   <key>EnvironmentVariables</key>
   <dict>
     <key>JIRA_EMAIL</key>
-    <string>bot@example.com</string>
+    <string>you@example.com</string>
     <key>JIRA_API_TOKEN</key>
-    <string>your-token-here</string>
+    <string>your-token</string>
   </dict>
   <key>StandardOutPath</key>
-  <string>/usr/local/var/log/crewbit-dev-junior.log</string>
+  <string>/tmp/crewbit-dev-junior.log</string>
   <key>StandardErrorPath</key>
-  <string>/usr/local/var/log/crewbit-dev-junior.log</string>
+  <string>/tmp/crewbit-dev-junior.log</string>
   <key>RunAtLoad</key>
   <true/>
   <key>KeepAlive</key>
@@ -109,23 +142,55 @@ Create a plist for each persona at `~/Library/LaunchAgents/com.crewbit.dev-junio
 </plist>
 ```
 
-Load the service:
+Load it with:
 
 ```bash
-launchctl load ~/Library/LaunchAgents/com.crewbit.dev-junior.plist
+launchctl load ~/Library/LaunchAgents/sh.crewbit.dev-junior.plist
 ```
 
-## Separate log output per daemon
+Create a separate plist for each persona.
 
-Whether you use systemd, launchd, or a plain shell script, redirect each daemon's stdout and stderr to a separate file:
+### PM2 (cross-platform)
+
+PM2 works on both Linux and macOS and keeps a process list across reboots.
+
+Create a `crewbit-ecosystem.config.js` file:
+
+```js
+module.exports = {
+  apps: [
+    {
+      name: "dev-junior",
+      script: "crewbit",
+      args: "./dev-junior.yaml",
+      cwd: "/path/to/your/repo",
+      out_file: "./logs/dev-junior.log",
+      error_file: "./logs/dev-junior.log",
+      env: {
+        JIRA_EMAIL: "you@example.com",
+        JIRA_API_TOKEN: "your-token",
+      },
+    },
+    {
+      name: "qa-bot",
+      script: "crewbit",
+      args: "./qa-bot.yaml",
+      cwd: "/path/to/your/repo",
+      out_file: "./logs/qa-bot.log",
+      error_file: "./logs/qa-bot.log",
+      env: {
+        JIRA_EMAIL: "you@example.com",
+        JIRA_API_TOKEN: "your-token",
+      },
+    },
+  ],
+};
+```
+
+Start all daemons and save the process list:
 
 ```bash
-crewbit ./dev-junior.yaml >> /var/log/crewbit/dev-junior.log 2>&1 &
-crewbit ./qa-agent.yaml   >> /var/log/crewbit/qa-agent.log   2>&1 &
+pm2 start crewbit-ecosystem.config.js
+pm2 save
+pm2 startup   # prints a command to run so PM2 restarts on reboot
 ```
-
-This keeps log output from different personas from interleaving, which makes it much easier to trace what each daemon is doing.
-
-## Further reading
-
-For details on how worktrees are created and cleaned up, see [../explanation/how-it-works](../explanation/how-it-works).
