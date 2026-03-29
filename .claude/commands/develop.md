@@ -2,10 +2,10 @@
 
 The issue key is `$ARGUMENTS` (e.g. `dukex/crewbit#42`). Always provided by the orchestrator daemon.
 
-GitHub lifecycle: **Todo** → **In progress** → **In Review** → **Done**
+GitHub lifecycle: **Todo** → **In progress** → **In review** → **Done**
 
-- Claude drives: Todo → In progress → In Review.
-- Human drives: In Review → Done (merge) or In Review → Todo (rejection with feedback).
+- Claude drives: Todo → In progress → In review.
+- Human drives: In review → Done (merge) or In review → Todo (rejection with feedback).
 
 ---
 
@@ -120,7 +120,7 @@ gh issue view NUMBER --repo dukex/crewbit --json title,body,comments
 
 Internalize title, body (acceptance criteria), and all comments.
 
-Scan all comments for one whose body starts with `# Claude plan`.
+Scan all comments for one whose body starts with `# Crewbit plan`.
 
 - **Found:** extract the plan → skip to **Step 4** (no re-planning needed).
 - **Not found:** → **Step 3**.
@@ -129,7 +129,14 @@ Scan all comments for one whose body starts with `# Claude plan`.
 
 ### Step 3 — Move to In progress and create the plan
 
-1. Move the issue to **In progress** on the project board using the **Helper** above.
+1. Move the issue to **In progress** on the project board:
+
+   a. Run the metadata query (Helper query #1) — capture `projectId`, `fieldId` for "Status", and the `optionId` where `name == "In progress"`. **Save all three values; they are reused in Step 6.**
+
+   b. Run the item query (Helper query #2) with `NUMBER` — capture `itemId` (filter `project.number == 6`).
+
+   c. Run the mutation (Helper query #3) with the values from (a) and (b), using the **"In progress"** `optionId`.
+
 2. Read all relevant source files for the affected area (`src/`, `daemon.ts`, `examples/`, `docs/`).
 3. Break the acceptance criteria into concrete implementation steps.
 4. Make every technical decision needed. Document the reasoning; do not ask the user unless genuinely blocked.
@@ -137,7 +144,7 @@ Scan all comments for one whose body starts with `# Claude plan`.
 
    ```sh
    gh issue comment NUMBER --repo dukex/crewbit --body "$(cat <<'PLAN'
-   # Claude plan
+   # Crewbit plan
 
    ## Decisions
    - **Decision:** <what was decided>
@@ -183,7 +190,7 @@ mise exec -- node_modules/.bin/biome check .                 # no lint/format er
 
 ---
 
-### Step 6 — Open PR and move to In Review
+### Step 6 — Open PR and move to In review
 
 1. Push the branch: `git push`.
 2. Open a PR targeting `main`:
@@ -207,7 +214,13 @@ mise exec -- node_modules/.bin/biome check .                 # no lint/format er
 
    Capture the PR URL printed by `gh pr create`.
 
-3. Move the issue to **In Review** on the project board using the **Helper** above.
+3. Move the issue to **In review** on the project board:
+
+   a. Reuse `projectId` and `fieldId` captured in Step 3 — find the `optionId` where `name == "In review"`.
+
+   b. Run the item query (Helper query #2) again to get the current `itemId` for NUMBER.
+
+   c. Run the mutation (Helper query #3) with the **"In review"** `optionId`. Verify the mutation returns without errors before proceeding.
 4. Post a closing comment:
 
    ```sh
