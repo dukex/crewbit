@@ -22,6 +22,7 @@ export interface WorkflowConfig {
   provider: string;
   providers: {
     jira?: JiraProviderConfig;
+    "github-projects"?: GitHubProjectsProviderConfig;
     [key: string]: unknown;
   };
   transitions: Record<string, TransitionConfig>;
@@ -38,6 +39,11 @@ export interface WorkflowConfig {
     branchPattern: string;
     slugMaxLength: number;
   };
+}
+
+export interface GitHubProjectsProviderConfig {
+  owner: string;
+  projectNumber: number;
 }
 
 export interface JiraProviderConfig {

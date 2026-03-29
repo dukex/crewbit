@@ -12,6 +12,7 @@
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
+    "test": "tsx --test src/**/*.test.ts",
     "start": "tsx daemon.ts",
     "dry-run": "tsx daemon.ts --dry-run",
     "build": "bun build --compile --target=bun daemon.ts --outfile crewbit",

@@ -3,6 +3,7 @@ import { resolve } from 'path'
 import yaml from 'js-yaml'
 import type { WorkflowConfig, IssueProvider, QueueAction } from './types.js'
 import { JiraProvider } from './providers/jira.js'
+import { GitHubProjectsProvider } from './providers/github-projects.js'
 
 export function loadConfig(workflowPath: string): WorkflowConfig {
   const raw = readFileSync(resolve(workflowPath), 'utf8')
@@ -16,8 +17,13 @@ export function createProvider(config: WorkflowConfig): IssueProvider {
       if (!jiraConfig) throw new Error('workflow.yaml: providers.jira is required when provider = jira')
       return new JiraProvider(jiraConfig)
     }
+    case 'github-projects': {
+      const ghConfig = config.providers['github-projects']
+      if (!ghConfig) throw new Error('workflow.yaml: providers.github-projects is required when provider = github-projects')
+      return new GitHubProjectsProvider(ghConfig)
+    }
     default:
-      throw new Error(`workflow.yaml: unknown provider "${config.provider}". Supported: jira`)
+      throw new Error(`workflow.yaml: unknown provider "${config.provider}". Supported: jira, github-projects`)
   }
 }
 

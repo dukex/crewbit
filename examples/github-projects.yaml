@@ -1,0 +1,25 @@
+provider: github-projects
+
+providers:
+  github-projects:
+    owner: my-org # GitHub organization or user login
+    projectNumber: 1 # Number shown in the project URL: github.com/orgs/my-org/projects/1
+
+# Picks up issues from the backlog and implements them.
+transitions:
+  Start:
+    from: Ready
+    command: /develop
+
+agent:
+  planCommentMarker: "Claude plan"
+
+daemon:
+  waitSeconds: 30
+  maxSessionSeconds: 7200
+  worktreePrefix: dev-junior
+
+git:
+  defaultBranch: main
+  branchPattern: "{issueKey}/{slug}"
+  slugMaxLength: 40
