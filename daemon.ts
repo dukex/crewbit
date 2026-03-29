@@ -1,24 +1,33 @@
 #!/usr/bin/env tsx
 import { execSync, spawn, spawnSync } from "node:child_process";
 import { resolve } from "node:path";
+import { pruneWorktrees } from "./src/prune.js";
 import type { QueueAction, WorkflowConfig } from "./src/types.js";
 import { createProvider, loadConfig, resolveNextAction } from "./src/workflow.js";
 
 const REPO_ROOT = process.cwd();
 
-console.log(`Starting crewbit daemon (repo root: ${REPO_ROOT})...`);
+type Args =
+  | { subcommand: "daemon"; configPath: string; dryRun: boolean }
+  | { subcommand: "prune"; dryRun: boolean };
 
-function parseArgs(): { configPath: string; dryRun: boolean } {
+function parseArgs(): Args {
   const args = process.argv.slice(2);
   const dryRun = args.includes("--dry-run");
   const positional = args.find((arg) => !arg.startsWith("--"));
 
+  if (positional === "prune") {
+    return { subcommand: "prune", dryRun };
+  }
+
   if (positional) {
-    return { configPath: resolve(positional), dryRun };
+    return { subcommand: "daemon", configPath: resolve(positional), dryRun };
   }
 
   throw new Error(
-    "Usage: crewbit <path-to-workflow.yaml> [--dry-run]\n" + "Example: crewbit ./dev-junior.yaml",
+    "Usage:\n" +
+      "  crewbit <path-to-workflow.yaml> [--dry-run]   start the daemon\n" +
+      "  crewbit prune [--dry-run]                     remove stale worktrees and branches",
   );
 }
 
@@ -187,7 +196,14 @@ async function sleep(seconds: number): Promise<void> {
 }
 
 async function main(): Promise<void> {
-  const { configPath, dryRun } = parseArgs();
+  const args = parseArgs();
+
+  if (args.subcommand === "prune") {
+    pruneWorktrees(REPO_ROOT, args.dryRun);
+    return;
+  }
+
+  const { configPath, dryRun } = args;
   let exp = 1;
 
   log(`crewbit starting${dryRun ? " (dry-run)" : ""}`);
