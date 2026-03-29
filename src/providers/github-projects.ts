@@ -1,4 +1,5 @@
-import type { IssueProvider, Issue, Comment, GitHubProjectsProviderConfig } from "../types.js";
+import { log } from "node:console";
+import type { Comment, GitHubProjectsProviderConfig, Issue, IssueProvider } from "../types.js";
 
 const GITHUB_GRAPHQL_URL = "https://api.github.com/graphql";
 
@@ -44,6 +45,10 @@ export class GitHubProjectsProvider implements IssueProvider {
       body: JSON.stringify({ query, variables }),
     });
 
+    log(
+      `[GitHub API] ${query.replace(/\s+/g, " ").trim()} - variables: ${JSON.stringify(variables)}`,
+    );
+
     if (!response.ok) {
       throw new Error(`GitHub API failed: ${response.status} ${await response.text()}`);
     }
@@ -62,55 +67,72 @@ export class GitHubProjectsProvider implements IssueProvider {
 
   private async getViewerLogin(): Promise<string> {
     if (this.viewerLogin) return this.viewerLogin;
-    const data = await this.graphql<{ viewer: { login: string } }>(
-      `query { viewer { login } }`,
-    );
+    const data = await this.graphql<{ viewer: { login: string } }>("query { viewer { login } }");
     this.viewerLogin = data.viewer.login;
     return this.viewerLogin;
   }
 
-  private async fetchAllProjectItems(): Promise<ProjectItem[]> {
-    const items: ProjectItem[] = [];
-    let cursor: string | null = null;
-
-    do {
-      const data = await this.graphql<{
-        organization: {
-          projectV2: {
-            items: { nodes: ProjectItem[]; pageInfo: PageInfo };
-          };
-        };
-      }>(
-        `query($owner: String!, $number: Int!, $cursor: String) {
-          organization(login: $owner) {
-            projectV2(number: $number) {
-              items(first: 100, after: $cursor) {
-                nodes {
-                  fieldValueByName(name: "Status") {
-                    ... on ProjectV2ItemFieldSingleSelectValue { name }
-                  }
-                  content {
-                    __typename
-                    ... on Issue {
-                      number
-                      title
-                      repository { nameWithOwner }
-                      assignees(first: 10) { nodes { login } }
-                    }
-                  }
+  private async fetchProjectItemsPage(
+    ownerType: "organization" | "user",
+    cursor: string | null,
+  ): Promise<{ nodes: ProjectItem[]; pageInfo: PageInfo }> {
+    const query = `query($owner: String!, $number: Int!, $cursor: String) {
+      ${ownerType}(login: $owner) {
+        projectV2(number: $number) {
+          items(first: 100, after: $cursor) {
+            nodes {
+              fieldValueByName(name: "Status") {
+                ... on ProjectV2ItemFieldSingleSelectValue { name }
+              }
+              content {
+                __typename
+                ... on Issue {
+                  number
+                  title
+                  repository { nameWithOwner }
+                  assignees(first: 10) { nodes { login } }
                 }
-                pageInfo { hasNextPage endCursor }
               }
             }
+            pageInfo { hasNextPage endCursor }
           }
-        }`,
-        { owner: this.owner, number: this.projectNumber, cursor },
-      );
+        }
+      }
+    }`;
 
-      const page = data.organization.projectV2.items;
+    if (ownerType === "organization") {
+      const data = await this.graphql<{
+        organization: { projectV2: { items: { nodes: ProjectItem[]; pageInfo: PageInfo } } };
+      }>(query, { owner: this.owner, number: this.projectNumber, cursor });
+      return data.organization.projectV2.items;
+    }
+    const data = await this.graphql<{
+      user: { projectV2: { items: { nodes: ProjectItem[]; pageInfo: PageInfo } } };
+    }>(query, { owner: this.owner, number: this.projectNumber, cursor });
+    return data.user.projectV2.items;
+  }
+
+  private async fetchAllProjectItems(): Promise<ProjectItem[]> {
+    const items: ProjectItem[] = [];
+    let ownerType: "organization" | "user";
+    let firstPage: { nodes: ProjectItem[]; pageInfo: PageInfo };
+
+    try {
+      firstPage = await this.fetchProjectItemsPage("organization", null);
+      ownerType = "organization";
+    } catch {
+      firstPage = await this.fetchProjectItemsPage("user", null);
+      ownerType = "user";
+    }
+
+    items.push(...firstPage.nodes);
+    let cursor = firstPage.pageInfo.hasNextPage ? firstPage.pageInfo.endCursor : null;
+
+    while (cursor !== null) {
+      const page = await this.fetchProjectItemsPage(ownerType, cursor);
       items.push(...page.nodes);
       cursor = page.pageInfo.hasNextPage ? page.pageInfo.endCursor : null;
-    } while (cursor !== null);
+    }
 
     return items;
   }
@@ -139,7 +161,7 @@ export class GitHubProjectsProvider implements IssueProvider {
       throw new Error(`Invalid issue key: "${issueKey}". Expected format: owner/repo#number`);
     }
     const [, owner, repo, numberStr] = match;
-    const number = parseInt(numberStr, 10);
+    const number = Number.parseInt(numberStr, 10);
 
     const data = await this.graphql<{
       repository: {
