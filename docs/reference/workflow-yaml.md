@@ -15,12 +15,14 @@ Full specification of the crewbit workflow configuration file.
 
 ## `providers.jira`
 
-| Field           | Type   | Description                             |
-| --------------- | ------ | --------------------------------------- |
-| `baseUrl`       | string | Jira instance URL                       |
-| `projectKey`    | string | Jira project key (e.g. `KAN`)           |
-| `transitionIds` | object | Map of transition name → Jira ID        |
-| `issueTypes`    | object | Map of type name → Jira issue type ID   |
+| Field           | Type   | Required | Default | Description                             |
+| --------------- | ------ | -------- | ------- | --------------------------------------- |
+| `baseUrl`       | string | yes      | —       | Jira instance URL                       |
+| `projectKey`    | string | yes      | —       | Jira project key (e.g. `KAN`)           |
+| `transitionIds` | object | yes      | —       | Map of logical name → Jira numeric transition ID |
+| `issueTypes`    | object | yes      | —       | Map of type name → Jira issue type ID   |
+
+`transitionIds` maps a logical name to the numeric Jira transition ID (e.g. `Start: "21"`). Find IDs via the Jira REST API or project settings.
 
 ## `transitions.<name>`
 
@@ -45,11 +47,18 @@ Full specification of the crewbit workflow configuration file.
 | `branchPattern` | string | —       | Template for feature branch names |
 | `slugMaxLength` | number | 40      | Max chars in the slug portion     |
 
+### `git.branchPattern` tokens
+
+- `{issueKey}`: The issue key from the provider (e.g. `PROJ-42`).
+- `{slug}`: A slugified version of the issue title — lowercased, spaces replaced with `-`, truncated to `git.slugMaxLength`.
+
+Example: `feature/{issueKey}/{slug}` → `feature/PROJ-42/fix-login-bug`.
+
 ## `agent`
 
 | Field                | Type   | Description                                       |
 | -------------------- | ------ | ------------------------------------------------- |
-| `planCommentMarker`  | string | Prefix that identifies a plan comment on the issue |
+| `planCommentMarker`  | string | Prefix that identifies a plan comment on the issue. When set, the Claude Code slash command (e.g. `/develop`) will look for a comment with this prefix to use as the execution plan. |
 
 ## `providers.github-projects`
 
