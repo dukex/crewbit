@@ -62,7 +62,7 @@ jobs:
 
       - uses: oven-sh/setup-bun@v2
 
-      - run: bun install --frozen-lockfile
+      - run: bun install --ignore-scripts
 
       - name: Build binary
         run: bun build --compile --target=${{ matrix.target }} daemon.ts --outfile ${{ matrix.artifact }}
