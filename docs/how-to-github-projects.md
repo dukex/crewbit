@@ -6,6 +6,7 @@ This guide walks you through configuring crewbit to pull work items from a GitHu
 
 - A GitHub personal access token (classic) or a fine-grained token with the scopes below.
 - A GitHub Projects v2 board with a **Status** column (see [Status column naming](#status-column-naming)).
+- Issues on the project board assigned to the GitHub user associated with `GITHUB_TOKEN`. The GitHub Projects provider only returns issues assigned to that user; unassigned issues or issues assigned to other users will be ignored.
 - crewbit installed and working (`crewbit --version`).
 
 ## 1. Create a GitHub token
@@ -14,12 +15,12 @@ You need a token with the following scopes:
 
 | Scope | Why it is needed |
 |---|---|
-| `project` | Read and write project items and field values |
+| `project` | Read project items and field values (classic tokens only offer a combined read/write scope; crewbit only reads) |
 | `read:org` | Query organization-owned projects |
 
-For a **classic personal access token**: go to *Settings → Developer settings → Personal access tokens → Tokens (classic)* and check `project` and `read:org`.
+For a **classic personal access token**: go to *Settings → Developer settings → Personal access tokens → Tokens (classic)* and check `project` and `read:org`. GitHub does not offer a read-only variant of the `project` scope for classic tokens, but crewbit only reads project data and does not modify projects.
 
-For a **fine-grained token**: go to *Settings → Developer settings → Personal access tokens → Fine-grained tokens*, select the organization or user, and grant **Projects: Read and write** under organization permissions.
+For a **fine-grained token**: go to *Settings → Developer settings → Personal access tokens → Fine-grained tokens*, select the organization or user, and grant **Projects: Read-only** under organization permissions.
 
 Export the token:
 
@@ -40,7 +41,7 @@ The `<number>` at the end is the value you put in `projectNumber` in the YAML co
 
 crewbit reads issue status from the **Status** single-select field of the project board. The field must be named **exactly** `Status` (capital S). If your board uses a different name (e.g. `State` or `Column`), crewbit will not find any issues.
 
-The `from` and `to` values in your `transitions` config must match the option names in that Status field exactly, including capitalisation.
+The `from` values in your `transitions` config must match the option names in that Status field exactly, including capitalisation.
 
 ## 4. Minimal working YAML
 
@@ -98,4 +99,4 @@ A successful dry-run prints the next issue it would work on, or reports that the
 | `GitHub API failed: 401 ...` | The token is invalid or expired. Generate a new token and update `GITHUB_TOKEN`. |
 | `GitHub API failed: 403 ...` | The token is missing a required scope. Add `project` and/or `read:org` to the token. |
 | `GitHub GraphQL error: <message>` | The GitHub GraphQL API returned an error. The message contains the detail; common causes are a misspelled `owner`, a wrong `projectNumber`, or a token that cannot access the project. |
-| `Invalid issue key: "<key>". Expected format: owner/repo#number` | crewbit could not parse the issue key it constructed. This usually means `owner` or `projectNumber` in your config is wrong and the issue was matched without a valid repository association. |
+| `Invalid issue key: "<key>". Expected format: owner/repo#number` | crewbit tried to use an issue key that was not in the required `owner/repo#number` format (for example, from the current branch name or a configured pattern). Check your branch naming and `git.branchPattern` (or any manually supplied issue keys) to ensure they produce values like `my-org/my-repo#123`. |
