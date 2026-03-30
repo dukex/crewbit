@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/dukex/crewbit/compare/v1.3.0...v1.4.0) (2026-03-30)
+
+
+### Features
+
+* support custom prompt templates per transition ([bf94458](https://github.com/dukex/crewbit/commit/bf944589abfc8d6aa3060d45bab7d2598adebbe8))
+
 # [1.3.0](https://github.com/dukex/crewbit/compare/v1.2.0...v1.3.0) (2026-03-30)
 
 
