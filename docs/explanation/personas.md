@@ -40,4 +40,4 @@ The `agent.planCommentMarker` field is designed for exactly this purpose. When C
 
 Good plan comments include the current step, the steps already completed, and any decisions made (e.g. which API endpoint to call, which branch was created). The goal is that a fresh session reading only the issue and its comments can get to work without repeating completed steps.
 
-For configuration instructions on writing Claude commands that implement these patterns, see [../how-to/write-slash-commands](../how-to/write-slash-commands.md).
+For configuration instructions on writing Claude commands that implement these patterns, see [../how-to/write-slash-commands](../how-to/write-slash-commands.md). For the full field specification of `daemon`, `agent`, and `transitions`, see the [Workflow YAML reference](../reference/workflow-yaml.md).
