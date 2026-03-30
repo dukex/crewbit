@@ -17,10 +17,11 @@ You need a token with the following scopes:
 |---|---|
 | `project` | Read project items and field values (classic tokens only offer a combined read/write scope; crewbit only reads) |
 | `read:org` | Query organization-owned projects |
+| `repo` (or `public_repo` for public repos only) | Read repository issues and issue comments via GraphQL |
 
-For a **classic personal access token**: go to *Settings → Developer settings → Personal access tokens → Tokens (classic)* and check `project` and `read:org`. GitHub does not offer a read-only variant of the `project` scope for classic tokens, but crewbit only reads project data and does not modify projects.
+For a **classic personal access token**: go to *Settings → Developer settings → Personal access tokens → Tokens (classic)* and check `project`, `read:org`, and `repo` (or `public_repo` if your repos are all public). GitHub does not offer a read-only variant of the `project` scope for classic tokens, but crewbit only reads project data and does not modify projects.
 
-For a **fine-grained token**: go to *Settings → Developer settings → Personal access tokens → Fine-grained tokens*, select the organization or user, and grant **Projects: Read-only** under organization permissions.
+For a **fine-grained token**: go to *Settings → Developer settings → Personal access tokens → Fine-grained tokens*, select the organization or user, and grant **Projects: Read-only** under organization permissions and **Issues: Read-only** and **Metadata: Read-only** under repository permissions.
 
 Export the token:
 
@@ -83,10 +84,18 @@ Required fields under `providers.github-projects`:
 
 ## 5. Verify with dry-run
 
-Before running the daemon for real, confirm the config is valid and that crewbit can read your board:
+Before running the daemon for real, confirm the config is valid and that crewbit can read your board.
+
+If you are running from source:
 
 ```sh
 pnpm dry-run -- ./crewbit.yaml
+```
+
+If you installed the binary:
+
+```sh
+crewbit --dry-run ./crewbit.yaml
 ```
 
 A successful dry-run prints the next issue it would work on, or reports that the queue is empty — no Claude session is spawned.
