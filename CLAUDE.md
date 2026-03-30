@@ -14,7 +14,7 @@ pnpm lint             # lint only
 pnpm format           # format only
 ```
 
-> There are no automated tests in this repo. Use `--dry-run` to validate config changes without spawning Claude.
+> Tests run with `pnpm test`. Use `--dry-run` to validate config changes without spawning Claude.
 
 ## Architecture
 
@@ -63,6 +63,7 @@ We work as XP (eXtreme Programming) pair programmers. These rules are **mandator
    - **[IMPORTANT] `feat:` and `fix:` are ONLY for changes the end user directly experiences** — new capabilities, changed behaviours, or fixed bugs in the product itself. Internal work (docs, CI, test infra, site design, refactors, dependency bumps, tooling) must use `docs:`, `ci:`, `test:`, `style:`, `refactor:`, or `chore:` accordingly.
    - Examples of things that are **NOT** `feat:` or `fix:`: updating site colours, adding a VitePress docs portal, fixing a GitHub Actions workflow, adding `.nojekyll`, bumping pnpm version, adding/updating tests.
 9. **[IMPORTANT] Always commit and push** — After every change, commit with a conventional commit message and push to remote immediately.
+10. **[IMPORTANT] Always update docs** — For every feature, fix, or behaviour change, check `docs/` and update or create the relevant pages (reference, how-to, or both) before committing. Use the `documenter` agent to do this.
 
 ## Basic Rules
 
