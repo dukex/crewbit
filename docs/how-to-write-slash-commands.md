@@ -103,7 +103,7 @@ comment thread, so that re-runs pick up where a previous session left off.
 **Writing a plan comment (GitHub Issues):**
 
 ```sh
-gh issue comment $ARGUMENTS --repo owner/repo --body "$(cat <<'EOF'
+gh issue comment GITHUB-ISSUE-ID --repo owner/repo --body "$(cat <<'EOF'
 # Crewbit plan
 
 ## Decisions
@@ -120,7 +120,7 @@ EOF
 **Reading an existing plan comment (GitHub Issues):**
 
 ```sh
-gh issue view $ARGUMENTS --repo owner/repo --json comments \
+gh issue view GITHUB-ISSUE-ID --repo owner/repo --json comments \
   | jq -r '.comments[].body | select(startswith("# Crewbit plan"))'
 ```
 
