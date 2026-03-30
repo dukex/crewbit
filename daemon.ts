@@ -46,7 +46,7 @@ async function runClaude(
 ): Promise<boolean> {
   if (action.type === "idle") return true;
 
-  const prompt = `${action.command} ${action.issueKey}`;
+  const prompt = action.prompt;
 
   log(`[RUN] ${action.command} ${action.issueKey}`);
 

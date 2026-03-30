@@ -11,10 +11,12 @@ Slash commands are Markdown files stored at `.claude/commands/<name>.md` in your
 When crewbit picks up an issue it spawns:
 
 ```bash
-claude --dangerously-skip-permissions --no-session-persistence --print "<command> <issueKey>"
+claude --dangerously-skip-permissions --no-session-persistence --print "<prompt>"
 ```
 
-The issue key is passed as the first positional argument after the command name. Inside the Markdown file, `$ARGUMENTS` expands to everything that follows the command — in practice, the issue key.
+By default `<prompt>` is `<command> <issueKey>` — for example `/develop PROJ-42`. The issue key arrives as the first positional argument after the command name, so inside the Markdown file `$ARGUMENTS` expands to the issue key.
+
+You can replace the default prompt entirely using the `prompt` field on a transition in the workflow YAML. See [Customise the prompt sent to Claude](./configure-workflow.md#customise-the-prompt-sent-to-claude) for details.
 
 ## Write a minimal /develop command
 

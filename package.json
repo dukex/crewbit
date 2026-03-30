@@ -13,7 +13,7 @@
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "prepare": "cp .hooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit",
-    "test": "tsx --test src/**/*.test.ts",
+    "test": "tsx --test 'src/**/*.test.ts'",
     "start": "tsx daemon.ts",
     "dry-run": "tsx daemon.ts --dry-run",
     "build": "bun build --compile --target=bun daemon.ts --outfile crewbit",

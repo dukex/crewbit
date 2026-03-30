@@ -33,6 +33,25 @@ git:
   slugMaxLength: 40
 ```
 
+## Customise the prompt sent to Claude
+
+By default, crewbit sends `<command> <issueKey>` to Claude (e.g. `/develop PROJ-42`). Use the `prompt` field on a transition to send a different string:
+
+```yaml
+transitions:
+  Start:
+    from: To Do
+    command: /develop
+    prompt: "You must execute the command {command} for the issue {issueKey}. Follow the team conventions."
+```
+
+Available placeholders:
+
+- `{command}` — replaced with the transition's `command` value.
+- `{issueKey}` — replaced with the issue key (e.g. `PROJ-42`).
+
+A custom prompt is useful when you want to include standing instructions that apply to every issue picked up by a transition, without repeating them inside the slash command file itself.
+
 ## Dry-run mode
 
 Validate your config without spawning Claude:

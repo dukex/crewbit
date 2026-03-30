@@ -16,6 +16,7 @@ export interface IssueProvider {
 export interface TransitionConfig {
   from: string;
   command: string;
+  prompt?: string;
 }
 
 export interface WorkflowConfig {
@@ -54,4 +55,6 @@ export interface JiraProviderConfig {
   sortField?: string;
 }
 
-export type QueueAction = { type: "run"; issueKey: string; command: string } | { type: "idle" };
+export type QueueAction =
+  | { type: "run"; issueKey: string; command: string; prompt: string }
+  | { type: "idle" };

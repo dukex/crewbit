@@ -27,10 +27,20 @@ Full specification of the crewbit workflow configuration file.
 
 ## `transitions.<name>`
 
-| Field     | Type   | Description                                        |
-| --------- | ------ | -------------------------------------------------- |
-| `from`    | string | Source status to pick issues from                  |
-| `command` | string | Claude Code slash command to run (e.g. `/develop`) |
+| Field     | Type   | Required | Description                                        |
+| --------- | ------ | -------- | -------------------------------------------------- |
+| `from`    | string | yes      | Source status to pick issues from                  |
+| `command` | string | yes      | Claude Code slash command to run (e.g. `/develop`) |
+| `prompt`  | string | no       | Full prompt sent to Claude instead of the default  |
+
+When `prompt` is omitted, crewbit sends `{command} {issueKey}` (e.g. `/develop PROJ-42`).
+
+When `prompt` is set, crewbit interpolates the following placeholders before sending:
+
+| Placeholder  | Replaced with                               |
+| ------------ | ------------------------------------------- |
+| `{command}`  | The value of the transition's `command` field |
+| `{issueKey}` | The issue key from the provider (e.g. `PROJ-42`) |
 
 ## `daemon`
 

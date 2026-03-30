@@ -40,7 +40,12 @@ export async function resolveNextAction(
   for (const transition of Object.values(config.transitions)) {
     const issues = await provider.getIssuesByStatus(transition.from);
     if (issues.length > 0) {
-      return { type: "run", issueKey: issues[0].key, command: transition.command };
+      const issueKey = issues[0].key;
+      const template = transition.prompt ?? "{command} {issueKey}";
+      const prompt = template
+        .replace("{command}", transition.command)
+        .replace("{issueKey}", issueKey);
+      return { type: "run", issueKey, command: transition.command, prompt };
     }
   }
   return { type: "idle" };
