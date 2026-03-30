@@ -16,6 +16,7 @@ export class JiraProvider implements IssueProvider {
   private readonly baseUrl: string;
   private readonly projectKey: string;
   private readonly authHeader: string;
+  private readonly sortField: string;
 
   constructor(config: JiraProviderConfig) {
     const email = process.env.JIRA_EMAIL;
@@ -28,10 +29,11 @@ export class JiraProvider implements IssueProvider {
     this.baseUrl = config.baseUrl;
     this.projectKey = config.projectKey;
     this.authHeader = `Basic ${Buffer.from(`${email}:${token}`).toString("base64")}`;
+    this.sortField = config.sortField ?? "updated";
   }
 
   async getIssuesByStatus(statusLabel: string): Promise<Issue[]> {
-    const jql = `project = ${this.projectKey} AND status = "${statusLabel}" AND assignee = currentUser() AND issuetype != Subtask AND issuetype != Epic ORDER BY updated DESC`;
+    const jql = `project = ${this.projectKey} AND status = "${statusLabel}" AND assignee = currentUser() AND issuetype != Subtask AND issuetype != Epic ORDER BY ${this.sortField} DESC`;
     const url = `${this.baseUrl}/rest/api/3/search/jql?jql=${encodeURIComponent(jql)}&maxResults=10&fields=summary,status`;
 
     const response = await fetch(url, {

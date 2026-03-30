@@ -15,12 +15,13 @@ Full specification of the crewbit workflow configuration file.
 
 ## `providers.jira`
 
-| Field           | Type   | Required | Default | Description                                      |
-| --------------- | ------ | -------- | ------- | ------------------------------------------------ |
-| `baseUrl`       | string | yes      | —       | Jira instance URL                                |
-| `projectKey`    | string | yes      | —       | Jira project key (e.g. `JIR`)                    |
-| `transitionIds` | object | yes      | —       | Map of logical name → Jira numeric transition ID |
-| `issueTypes`    | object | yes      | —       | Map of type name → Jira issue type ID            |
+| Field           | Type   | Required | Default   | Description                                      |
+| --------------- | ------ | -------- | --------- | ------------------------------------------------ |
+| `baseUrl`       | string | yes      | —         | Jira instance URL                                |
+| `projectKey`    | string | yes      | —         | Jira project key (e.g. `JIR`)                    |
+| `transitionIds` | object | yes      | —         | Map of logical name → Jira numeric transition ID |
+| `issueTypes`    | object | yes      | —         | Map of type name → Jira issue type ID            |
+| `sortField`     | string | no       | `updated` | JQL field used in `ORDER BY … DESC`              |
 
 `transitionIds` maps a logical name to the numeric Jira transition ID (e.g. `Start: "21"`). Find IDs via the Jira REST API or project settings.
 

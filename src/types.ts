@@ -51,6 +51,7 @@ export interface JiraProviderConfig {
   projectKey: string;
   transitionIds: Record<string, string>;
   issueTypes: Record<string, string>;
+  sortField?: string;
 }
 
 export type QueueAction = { type: "run"; issueKey: string; command: string } | { type: "idle" };
