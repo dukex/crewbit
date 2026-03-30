@@ -23,7 +23,10 @@ export default defineConfig({
         items: [
           { text: "Configure a workflow", link: "/how-to/configure-workflow" },
           { text: "Set up GitHub Projects", link: "/how-to/github-projects" },
-          { text: "Write a slash command", link: "/how-to/write-slash-commands" },
+          {
+            text: "Write a slash command",
+            link: "/how-to/write-slash-commands",
+          },
           { text: "Run multiple personas", link: "/how-to/multiple-personas" },
           { text: "Debug issues not picked up", link: "/how-to/debug" },
         ],
@@ -33,7 +36,10 @@ export default defineConfig({
         items: [
           { text: "Workflow YAML", link: "/reference/workflow-yaml" },
           { text: "CLI", link: "/reference/cli" },
-          { text: "IssueProvider interface", link: "/reference/issue-provider" },
+          {
+            text: "IssueProvider interface",
+            link: "/reference/issue-provider",
+          },
         ],
       },
       {
