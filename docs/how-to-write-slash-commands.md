@@ -55,14 +55,27 @@ Your command file must read and use it — otherwise Claude has no idea which is
 `.claude/commands/develop.md`:
 
 ````markdown
-# /develop — Implement a GitHub Issue
+# /develop — Implement work for an issue
 
-The issue key is `$ARGUMENTS` (e.g. `owner/repo#42` or `KAN-42`).
+The issue key is `$ARGUMENTS`.
 
-1. Fetch the issue:
+- For GitHub-backed workflows it will be a GitHub issue reference like `owner/repo#42`.
+- For Jira-backed workflows it will be a Jira issue key like `KAN-42`.
+
+1. Fetch the issue details for your provider:
+
+   **GitHub Issues:**
    ```sh
    gh issue view $ARGUMENTS --json title,body,comments
    ```
+
+   **Jira:**
+   ```sh
+   curl -u "$JIRA_EMAIL:$JIRA_API_TOKEN" \
+     -H "Accept: application/json" \
+     "$JIRA_BASE_URL/rest/api/3/issue/$ARGUMENTS"
+   ```
+
 2. Create a feature branch named after the issue key.
 3. Implement what the issue asks for.
 4. Open a pull request targeting `main`.
@@ -85,10 +98,10 @@ agent:
 This is a convention your command uses to store and retrieve a structured plan in the issue's
 comment thread, so that re-runs pick up where a previous session left off.
 
-**Writing a plan comment:**
+**Writing a plan comment (GitHub Issues):**
 
 ```sh
-gh issue comment KAN-42 --repo owner/repo --body "$(cat <<'EOF'
+gh issue comment $ARGUMENTS --repo owner/repo --body "$(cat <<'EOF'
 # Crewbit plan
 
 ## Decisions
@@ -102,12 +115,14 @@ EOF
 )"
 ```
 
-**Reading an existing plan comment:**
+**Reading an existing plan comment (GitHub Issues):**
 
 ```sh
-gh issue view KAN-42 --repo owner/repo --json comments \
+gh issue view $ARGUMENTS --repo owner/repo --json comments \
   | jq -r '.comments[].body | select(startswith("# Crewbit plan"))'
 ```
+
+For Jira-backed workflows, use the Jira REST API to add and retrieve comments on the issue identified by `$ARGUMENTS`.
 
 In your command file, instruct Claude to check for an existing plan comment before
 re-planning:
@@ -142,7 +157,12 @@ To iterate quickly on the command file itself:
 claude --print "/develop KAN-42"
 ```
 
-No daemon, no issue tracker polling — just the raw Claude session you'd get in production.
+No daemon, no issue tracker polling. Note that crewbit adds `--dangerously-skip-permissions` and
+`--no-session-persistence` when spawning Claude. To match production behaviour exactly:
+
+```sh
+claude --dangerously-skip-permissions --no-session-persistence --print "/develop KAN-42"
+```
 
 ---
 
@@ -161,7 +181,7 @@ permission prompts. This means Claude will:
   _"only push to branches prefixed with `feature/`"_ or _"do not delete files"_.
 - Keeping secrets out of the repository. The child process inherits your environment
   except for a small set of blocked vars (`CLAUDE_CODE_SSE_PORT`, `ANTHROPIC_BASE_URL`,
-  `NODE_OPTIONS`, `VSCODE_*`, `CLAUDE_CODE_*`).
+  `NODE_OPTIONS`, `VSCODE_INSPECTOR_OPTIONS`, `VSCODE_INJECTION`, `CLAUDE_CODE_*`).
 - Reviewing the commands you ship. A command file is executable instructions; treat it
   with the same care you give production code.
 
