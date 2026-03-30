@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/dukex/crewbit/compare/v1.1.0...v1.2.0) (2026-03-30)
+
+
+### Features
+
+* add prune subcommand to remove stale worktrees and branches ([3560e7f](https://github.com/dukex/crewbit/commit/3560e7f8cd15dbb6e4b6aabcc2d923380b7a6a78))
+
 # [1.1.0](https://github.com/dukex/crewbit/compare/v1.0.3...v1.1.0) (2026-03-29)
 
 
