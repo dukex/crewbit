@@ -24,7 +24,7 @@ daemon:
   worktreePrefix: releaser
 ```
 
-**What breaks if two daemons share a prefix:** crewbit names its temporary worktree branches `worktree-<prefix>-<issueKey>`. Two daemons with the same prefix will attempt to create and delete the same branch name for the same issue. The second daemon to start will fail with a git error because the branch already exists, or — worse — the first daemon's worktree will be deleted mid-session when the second daemon cleans up after itself.
+**What breaks if two daemons share a prefix:** crewbit names its temporary worktree branches `worktree-<prefix>-<issueKey>`. Two daemons with the same prefix will both try to manage the same worktree and branch name for the same issue. When one daemon hits a `git worktree add` conflict, it will tear down the existing worktree/branch and retry, so the more likely outcome is that one daemon deletes the other daemon's active worktree mid-session rather than the second daemon simply failing to start.
 
 ## Avoid transition overlap
 
@@ -81,13 +81,21 @@ WorkingDirectory=/path/to/your/repo
 ExecStart=/usr/local/bin/crewbit /path/to/dev-junior.yaml
 Restart=on-failure
 RestartSec=10
-StandardOutput=append:/var/log/crewbit/dev-junior.log
-StandardError=append:/var/log/crewbit/dev-junior.log
-Environment=JIRA_EMAIL=you@example.com
-Environment=JIRA_API_TOKEN=your-token
+StandardOutput=journal
+StandardError=inherit
+EnvironmentFile=/etc/crewbit/dev-junior.env
 
 [Install]
 WantedBy=multi-user.target
+```
+
+Create `/etc/crewbit/dev-junior.env` with restrictive permissions and your credentials:
+
+```bash
+sudo mkdir -p /etc/crewbit
+sudo install -m 600 /dev/null /etc/crewbit/dev-junior.env
+echo "JIRA_EMAIL=you@example.com" | sudo tee -a /etc/crewbit/dev-junior.env
+echo "JIRA_API_TOKEN=your-token"  | sudo tee -a /etc/crewbit/dev-junior.env
 ```
 
 Repeat with different names and config paths for each persona, then enable them:
@@ -145,7 +153,7 @@ Save the following as `~/Library/LaunchAgents/sh.crewbit.dev-junior.plist`:
 Load it with:
 
 ```bash
-launchctl load ~/Library/LaunchAgents/sh.crewbit.dev-junior.plist
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/sh.crewbit.dev-junior.plist
 ```
 
 Create a separate plist for each persona.
