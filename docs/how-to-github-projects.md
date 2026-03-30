@@ -84,15 +84,7 @@ Required fields under `providers.github-projects`:
 
 ## 5. Verify with dry-run
 
-Before running the daemon for real, confirm the config is valid and that crewbit can read your board.
-
-If you are running from source:
-
-```sh
-pnpm dry-run -- ./crewbit.yaml
-```
-
-If you installed the binary:
+Before running the daemon for real, confirm the config is valid and that crewbit can read your board:
 
 ```sh
 crewbit --dry-run ./crewbit.yaml
