@@ -39,10 +39,10 @@ transitions:
     command: /develop
 ```
 
-and the next issue is `KAN-42`, crewbit runs:
+and the next issue is `JIR-42`, crewbit runs:
 
 ```sh
-claude --dangerously-skip-permissions --no-session-persistence --print "/develop KAN-42"
+claude --dangerously-skip-permissions --no-session-persistence --print "/develop JIR-42"
 ```
 
 **The issue key is always the first positional argument after the command name.**
@@ -60,16 +60,18 @@ Your command file must read and use it — otherwise Claude has no idea which is
 The issue key is `$ARGUMENTS`.
 
 - For GitHub-backed workflows it will be a GitHub issue reference like `owner/repo#42`.
-- For Jira-backed workflows it will be a Jira issue key like `KAN-42`.
+- For Jira-backed workflows it will be a Jira issue key like `JIR-42`.
 
 1. Fetch the issue details for your provider:
 
    **GitHub Issues:**
+
    ```sh
    gh issue view $ARGUMENTS --json title,body,comments
    ```
 
    **Jira:**
+
    ```sh
    curl -u "$JIRA_EMAIL:$JIRA_API_TOKEN" \
      -H "Accept: application/json" \
@@ -127,12 +129,12 @@ For Jira-backed workflows, use the Jira REST API to add and retrieve comments on
 In your command file, instruct Claude to check for an existing plan comment before
 re-planning:
 
-````markdown
+```markdown
 Fetch all comments and look for one whose body starts with `# Crewbit plan`.
 
 - **Found:** extract the plan and skip to the implementation steps.
 - **Not found:** analyse the issue, write the plan, post it as a comment, then implement.
-````
+```
 
 ---
 
@@ -141,7 +143,7 @@ Fetch all comments and look for one whose body starts with `# Crewbit plan`.
 Run the command directly with `claude --print`:
 
 ```sh
-claude --print "/develop KAN-42"
+claude --print "/develop JIR-42"
 ```
 
 Or with `--dry-run` via crewbit (no Claude spawned, just prints what would run):
@@ -154,14 +156,14 @@ To iterate quickly on the command file itself:
 
 ```sh
 # Edit .claude/commands/develop.md, then re-run:
-claude --print "/develop KAN-42"
+claude --print "/develop JIR-42"
 ```
 
 No daemon, no issue tracker polling. Note that crewbit adds `--dangerously-skip-permissions` and
 `--no-session-persistence` when spawning Claude. To match production behaviour exactly:
 
 ```sh
-claude --dangerously-skip-permissions --no-session-persistence --print "/develop KAN-42"
+claude --dangerously-skip-permissions --no-session-persistence --print "/develop JIR-42"
 ```
 
 ---
@@ -195,7 +197,7 @@ timeout, a crash, or a manual retry. Design your command to be safe to re-run:
 - **Check before acting.** Before creating a branch or opening a PR, check whether one
   already exists:
   ```sh
-  gh pr list --search "KAN-42" --state all --json number,headRefName
+  gh pr list --search "JIR-42" --state all --json number,headRefName
   ```
 - **Use the plan comment as a checkpoint.** If a plan comment exists, skip planning and
   jump straight to the next unfinished step.

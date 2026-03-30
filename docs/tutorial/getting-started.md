@@ -30,7 +30,7 @@ provider: jira
 providers:
   jira:
     baseUrl: https://your-org.atlassian.net
-    projectKey: KAN
+    projectKey: JIR
     transitionIds:
       Start: "21"
       ToReview: "9"

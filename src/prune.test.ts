@@ -25,7 +25,7 @@ describe("parseWorktreeList", () => {
 
   it("parses a detached HEAD worktree as null branch", () => {
     const output = [
-      "worktree /home/user/project/.claude/worktrees/dev-KAN-1",
+      "worktree /home/user/project/.claude/worktrees/dev-JIR-1",
       "HEAD def456",
       "detached",
       "",
@@ -41,21 +41,21 @@ describe("parseWorktreeList", () => {
       "HEAD abc123",
       "branch refs/heads/main",
       "",
-      "worktree /home/user/project/.claude/worktrees/dev-KAN-1",
+      "worktree /home/user/project/.claude/worktrees/dev-JIR-1",
       "HEAD def456",
-      "branch refs/heads/worktree-dev-KAN-1",
+      "branch refs/heads/worktree-dev-JIR-1",
       "",
-      "worktree /home/user/project/.claude/worktrees/dev-KAN-2",
+      "worktree /home/user/project/.claude/worktrees/dev-JIR-2",
       "HEAD 789abc",
-      "branch refs/heads/worktree-dev-KAN-2",
+      "branch refs/heads/worktree-dev-JIR-2",
       "",
     ].join("\n");
 
     const result = parseWorktreeList(output);
     assert.equal(result.length, 3);
-    assert.equal(result[1].path, "/home/user/project/.claude/worktrees/dev-KAN-1");
-    assert.equal(result[1].branch, "worktree-dev-KAN-1");
-    assert.equal(result[2].path, "/home/user/project/.claude/worktrees/dev-KAN-2");
+    assert.equal(result[1].path, "/home/user/project/.claude/worktrees/dev-JIR-1");
+    assert.equal(result[1].branch, "worktree-dev-JIR-1");
+    assert.equal(result[2].path, "/home/user/project/.claude/worktrees/dev-JIR-2");
   });
 });
 
@@ -68,16 +68,22 @@ describe("filterCrewbitWorktrees", () => {
   it("returns worktrees under .claude/worktrees/", () => {
     const entries = [
       { path: REPO_ROOT, branch: "main" },
-      { path: `${REPO_ROOT}/.claude/worktrees/dev-KAN-1`, branch: "worktree-dev-KAN-1" },
+      {
+        path: `${REPO_ROOT}/.claude/worktrees/dev-JIR-1`,
+        branch: "worktree-dev-JIR-1",
+      },
     ];
     const result = filterCrewbitWorktrees(entries, REPO_ROOT);
     assert.equal(result.length, 1);
-    assert.equal(result[0].path, `${REPO_ROOT}/.claude/worktrees/dev-KAN-1`);
+    assert.equal(result[0].path, `${REPO_ROOT}/.claude/worktrees/dev-JIR-1`);
   });
 
   it("ignores worktrees outside .claude/worktrees/", () => {
     const entries = [
-      { path: "/other/project/.claude/worktrees/dev-KAN-1", branch: "worktree-dev-KAN-1" },
+      {
+        path: "/other/project/.claude/worktrees/dev-JIR-1",
+        branch: "worktree-dev-JIR-1",
+      },
     ];
     assert.deepEqual(filterCrewbitWorktrees(entries, REPO_ROOT), []);
   });
@@ -85,8 +91,14 @@ describe("filterCrewbitWorktrees", () => {
   it("returns multiple crewbit worktrees", () => {
     const entries = [
       { path: REPO_ROOT, branch: "main" },
-      { path: `${REPO_ROOT}/.claude/worktrees/dev-KAN-1`, branch: "worktree-dev-KAN-1" },
-      { path: `${REPO_ROOT}/.claude/worktrees/dev-KAN-2`, branch: "worktree-dev-KAN-2" },
+      {
+        path: `${REPO_ROOT}/.claude/worktrees/dev-JIR-1`,
+        branch: "worktree-dev-JIR-1",
+      },
+      {
+        path: `${REPO_ROOT}/.claude/worktrees/dev-JIR-2`,
+        branch: "worktree-dev-JIR-2",
+      },
     ];
     assert.equal(filterCrewbitWorktrees(entries, REPO_ROOT).length, 2);
   });
