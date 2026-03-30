@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/dukex/crewbit/compare/v1.2.0...v1.3.0) (2026-03-30)
+
+
+### Features
+
+* **Jira:** configurable sort field for issue queries ([af220e5](https://github.com/dukex/crewbit/commit/af220e5fc53442951ada7407cedc5c9e27177c19))
+
 # [1.2.0](https://github.com/dukex/crewbit/compare/v1.1.0...v1.2.0) (2026-03-30)
 
 
