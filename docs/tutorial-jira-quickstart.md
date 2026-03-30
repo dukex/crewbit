@@ -161,6 +161,6 @@ Watch the terminal — you will see log lines showing each poll, the issue key p
 
 ## Next steps
 
-- **How-to guides** — See [CONTRIBUTING.md](../CONTRIBUTING.md) for adding providers, adjusting polling, and running from source.
-- **YAML reference** — The full schema is documented in the [README](../README.md#workflow-yaml).
-- **More example personas** — See the [`examples/`](../examples) directory for ready-to-use configurations (releaser, copywriter, QA bot, translator).
+- **How-to guides** — See [CONTRIBUTING.md](https://github.com/dukex/crewbit/blob/main/CONTRIBUTING.md) for adding providers, adjusting polling, and running from source.
+- **YAML reference** — The full schema is documented in the [README](https://github.com/dukex/crewbit/blob/main/README.md#workflow-yaml).
+- **More example personas** — See the [`examples/`](https://github.com/dukex/crewbit/tree/main/examples) directory for ready-to-use configurations (releaser, copywriter, QA bot, translator).
