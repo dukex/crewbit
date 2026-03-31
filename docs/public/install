@@ -243,6 +243,12 @@ add_to_path() {
   fi
 }
 
+quote_path() {
+  local value="$1"
+  value=${value//\'/\'"\'"\'}
+  printf "'%s'" "$value"
+}
+
 maybe_update_path() {
   if [[ "$NO_MODIFY_PATH" == "true" ]]; then
     return
@@ -282,18 +288,24 @@ maybe_update_path() {
     fi
   done
 
+  local export_command
+  export_command="export PATH=$(quote_path "$INSTALL_DIR"):\$PATH"
+
+  local fish_command
+  fish_command="fish_add_path $(quote_path "$INSTALL_DIR")"
+
   if [[ -z "$config_file" ]]; then
     print_message warning "No shell config file found. Add this to your shell config:"
-    print_message info "  export PATH=${INSTALL_DIR}:\$PATH"
+    print_message info "  ${export_command}"
     return
   fi
 
   case "$current_shell" in
     fish)
-      add_to_path "$config_file" "fish_add_path ${INSTALL_DIR}"
+      add_to_path "$config_file" "$fish_command"
       ;;
     *)
-      add_to_path "$config_file" "export PATH=${INSTALL_DIR}:\$PATH"
+      add_to_path "$config_file" "$export_command"
       ;;
   esac
 }
