@@ -17,7 +17,7 @@ usage() {
   cat <<EOF
 crewbit Installer
 
-Usage: install.sh [options]
+Usage: install [options]
 
 Options:
   -h, --help              Display this help message
@@ -160,11 +160,20 @@ resolve_version_and_url() {
     local http_status
     http_status=$(curl -sI -o /dev/null -w "%{http_code}" \
       "https://github.com/${REPO}/releases/tag/v${version}")
-    if [[ "$http_status" == "404" ]]; then
-      print_message error "Release v${version} not found"
-      print_message info "Available releases: https://github.com/${REPO}/releases"
-      exit 1
-    fi
+    case "$http_status" in
+      2*|3*)
+        ;;
+      404)
+        print_message error "Release v${version} not found"
+        print_message info "Available releases: https://github.com/${REPO}/releases"
+        exit 1
+        ;;
+      *)
+        print_message error "Failed to validate release v${version} (HTTP ${http_status})"
+        print_message info "Check https://github.com/${REPO}/releases or try again later."
+        exit 1
+        ;;
+    esac
     version="v${version}"
   fi
 
@@ -187,13 +196,11 @@ ensure_install_dir() {
     return
   fi
 
-  local parent_dir
-  parent_dir=$(dirname "$INSTALL_DIR")
-  if [[ -w "$parent_dir" ]]; then
-    mkdir -p "$INSTALL_DIR"
-  else
-    sudo mkdir -p "$INSTALL_DIR"
+  if mkdir -p "$INSTALL_DIR" 2>/dev/null; then
+    return
   fi
+
+  sudo mkdir -p "$INSTALL_DIR"
 }
 
 install_binary() {
