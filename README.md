@@ -22,13 +22,20 @@ crewbit is a daemon that watches an issue tracker, picks up work in priority ord
 **Binary (recommended):**
 
 ```bash
-curl -fsSL https://crewbit.sh/install | sh
+curl -fsSL https://crewbit.sh/install | bash
 ```
 
-Installs the latest release to `/usr/local/bin/crewbit`. Override the directory:
+Installs the latest release to `~/.crewbit/bin/crewbit` and adds the directory to
+your `PATH` (unless `--no-modify-path` is set). Override the directory:
 
 ```bash
-CREWBIT_INSTALL_DIR=~/.local/bin curl -fsSL https://crewbit.sh/install | sh
+CREWBIT_INSTALL_DIR=~/.local/bin curl -fsSL https://crewbit.sh/install | bash
+```
+
+Or pass flags directly:
+
+```bash
+curl -fsSL https://crewbit.sh/install | bash -s -- --install-dir ~/.local/bin --no-modify-path
 ```
 
 **From source (requires [Bun](https://bun.sh)):**

@@ -291,11 +291,32 @@ maybe_update_path() {
   esac
 }
 
+check_existing_install() {
+  local target_path="$1"
+
+  if ! command -v "$APP" >/dev/null 2>&1; then
+    return
+  fi
+
+  local existing_path
+  existing_path=$(command -v "$APP" 2>/dev/null || true)
+  if [[ -z "$existing_path" ]]; then
+    return
+  fi
+
+  if [[ "$existing_path" != "$target_path" ]]; then
+    print_message warning "Found existing ${APP} at ${existing_path}."
+    print_message warning "This install will place ${APP} at ${target_path}."
+    print_message warning "You may want to remove the older binary or update your PATH."
+  fi
+}
+
 main() {
   ensure_dependencies
 
   if [[ -n "$BINARY_PATH" ]]; then
     print_message info "${MUTED}Installing ${NC}${APP}${MUTED} from local binary${NC}"
+    check_existing_install "${INSTALL_DIR}/${APP}"
     install_from_local
     maybe_update_path
     print_message info "${MUTED}Done! ${APP} installed to${NC} ${INSTALL_DIR}/${APP}"
@@ -318,6 +339,7 @@ main() {
   tmp=$(mktemp)
 
   print_message info "${MUTED}Installing ${NC}${APP}${MUTED} ${version} (${platform})${NC}"
+  check_existing_install "${INSTALL_DIR}/${APP}"
   download_binary "$url" "$tmp"
   chmod +x "$tmp"
   install_binary "$tmp"

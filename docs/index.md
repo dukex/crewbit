@@ -41,7 +41,7 @@ Only run in trusted environments.
 ## Install
 
 ```bash
-curl -fsSL https://crewbit.sh/install | sh
+curl -fsSL https://crewbit.sh/install | bash
 crewbit ./dev-junior.yaml
 ```
 
