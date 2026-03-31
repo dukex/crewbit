@@ -13,6 +13,15 @@ RED='\033[0;31m'
 ORANGE='\033[38;5;214m'
 NC='\033[0m'
 
+setup_colors() {
+  if [[ -n "${NO_COLOR:-}" ]] || [[ ! -t 1 ]]; then
+    MUTED=""
+    RED=""
+    ORANGE=""
+    NC=""
+  fi
+}
+
 usage() {
   cat <<EOF
 crewbit Installer
@@ -331,6 +340,7 @@ check_existing_install() {
 }
 
 main() {
+  setup_colors
   ensure_dependencies
 
   if [[ -n "$BINARY_PATH" ]]; then
