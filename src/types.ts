@@ -24,8 +24,10 @@ export interface WorkflowConfig {
   providers: {
     jira?: JiraProviderConfig;
     "github-projects"?: GitHubProjectsProviderConfig;
+    opencode?: OpenCodeProviderConfig;
     [key: string]: unknown;
   };
+  runner?: "claude" | "opencode";
   transitions: Record<string, TransitionConfig>;
   agent?: {
     planCommentMarker: string;
@@ -35,6 +37,7 @@ export interface WorkflowConfig {
     maxSessionSeconds: number;
     worktreePrefix: string;
   };
+  opencode?: OpenCodeServerConfig;
   git?: {
     defaultBranch: string;
     branchPattern: string;
@@ -53,6 +56,21 @@ export interface JiraProviderConfig {
   transitionIds: Record<string, string>;
   issueTypes: Record<string, string>;
   sortField?: string;
+}
+
+export interface OpenCodeProviderConfig {
+  baseUrl: string;
+  username?: string;
+  password?: string;
+}
+
+export interface OpenCodeServerConfig {
+  port?: number;
+  hostname?: string;
+  cors?: string[];
+  mdns?: boolean;
+  mdnsDomain?: string;
+  start?: boolean;
 }
 
 export type QueueAction =

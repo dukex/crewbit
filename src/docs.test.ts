@@ -14,6 +14,10 @@ describe("docs/reference/workflow-yaml.md", () => {
       assert.match(docContent, /\|\s*`provider`\s*\|[^|]*\|\s*yes\b/);
     });
 
+    it("documents runner field", () => {
+      assert.match(docContent, /`runner`/);
+    });
+
     it("documents providers field", () => {
       assert.match(docContent, /`providers`/);
     });
@@ -31,6 +35,10 @@ describe("docs/reference/workflow-yaml.md", () => {
       assert.match(docContent, /`waitSeconds`/);
       assert.match(docContent, /`maxSessionSeconds`/);
       assert.match(docContent, /`worktreePrefix`/);
+    });
+
+    it("documents opencode field", () => {
+      assert.match(docContent, /`opencode`/);
     });
 
     it("documents git field as optional with defaults", () => {
@@ -56,6 +64,13 @@ describe("docs/reference/workflow-yaml.md", () => {
 
     it("documents issueTypes field", () => {
       assert.match(docContent, /`issueTypes`/);
+    });
+  });
+
+  describe("providers.opencode fields completeness", () => {
+    it("documents providers.opencode baseUrl", () => {
+      assert.match(docContent, /`providers\.opencode`/);
+      assert.match(docContent, /`baseUrl`/);
     });
   });
 
@@ -98,6 +113,10 @@ describe("docs/reference/workflow-yaml.md", () => {
 
     it("documents GITHUB_TOKEN", () => {
       assert.match(docContent, /`GITHUB_TOKEN`|GITHUB_TOKEN/);
+    });
+
+    it("documents OPENCODE_SERVER_PASSWORD", () => {
+      assert.match(docContent, /`OPENCODE_SERVER_PASSWORD`|OPENCODE_SERVER_PASSWORD/);
     });
   });
 });

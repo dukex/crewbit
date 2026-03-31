@@ -8,9 +8,11 @@ Full specification of the crewbit workflow configuration file.
 | ------------- | ------ | -------- | --------------------------------------- |
 | `provider`    | string | yes      | Issue provider name (`jira`)            |
 | `providers`   | object | yes      | Provider-specific configuration         |
+| `runner`      | string | no       | Execution backend (`claude`, `opencode`) |
 | `transitions` | object | yes      | Workflow transitions (order = priority) |
 | `agent`       | object | no       | Agent behavior settings                 |
 | `daemon`      | object | no       | Daemon timing settings                  |
+| `opencode`    | object | no       | OpenCode runner settings                |
 | `git`         | object | no       | Git branch settings                     |
 
 ## `providers.jira`
@@ -42,6 +44,13 @@ When `prompt` is set, crewbit interpolates the following placeholders before sen
 | `{command}`  | The value of the transition's `command` field |
 | `{issueKey}` | The issue key from the provider (e.g. `PROJ-42`) |
 
+## `runner`
+
+`runner` selects which execution backend crewbit uses to run each transition.
+
+- `claude` (default) — spawns Claude Code as a child process.
+- `opencode` — calls an OpenCode server over HTTP.
+
 ## `daemon`
 
 | Field               | Type   | Default | Description                          |
@@ -49,6 +58,20 @@ When `prompt` is set, crewbit interpolates the following placeholders before sen
 | `waitSeconds`       | number | 30      | Polling interval when queue is empty |
 | `maxSessionSeconds` | number | 7200    | Hard timeout per Claude session      |
 | `worktreePrefix`    | string | —       | Prefix for git worktree branch names |
+
+## `opencode`
+
+| Field        | Type     | Default     | Description                                 |
+| ------------ | -------- | ----------- | ------------------------------------------- |
+| `baseUrl`    | string   | —           | OpenCode server base URL (e.g. http://localhost:4096) |
+| `username`   | string   | `opencode`  | HTTP basic auth username                    |
+| `password`   | string   | —           | HTTP basic auth password                    |
+| `port`       | number   | `4096`      | Port to start `opencode serve` with         |
+| `hostname`   | string   | `127.0.0.1` | Hostname to start `opencode serve` with     |
+| `cors`       | string[] | `[]`        | Additional CORS origins                     |
+| `mdns`       | boolean  | `false`     | Enable mDNS discovery                       |
+| `mdnsDomain` | string   | `opencode.local` | Custom mDNS domain name                   |
+| `start`      | boolean  | `true`      | Start `opencode serve` automatically        |
 
 ## `git`
 
@@ -78,6 +101,14 @@ Example: `feature/{issueKey}/{slug}` → `feature/PROJ-42/fix-login-bug`.
 | `owner`         | string | yes      | GitHub organization or user login  |
 | `projectNumber` | number | yes      | Project number from the GitHub URL |
 
+## `providers.opencode`
+
+| Field      | Type   | Required | Description                                 |
+| ---------- | ------ | -------- | ------------------------------------------- |
+| `baseUrl`  | string | yes      | OpenCode server base URL                    |
+| `username` | string | no       | HTTP basic auth username (defaults to opencode) |
+| `password` | string | no       | HTTP basic auth password                    |
+
 ## Environment variable overrides
 
 | Variable              | Overrides                    |
@@ -87,3 +118,4 @@ Example: `feature/{issueKey}/{slug}` → `feature/PROJ-42/fix-login-bug`.
 | `JIRA_EMAIL`          | Jira account email           |
 | `JIRA_API_TOKEN`      | Jira API token               |
 | `GITHUB_TOKEN`        | GitHub personal access token |
+| `OPENCODE_SERVER_PASSWORD` | OpenCode basic auth password |
