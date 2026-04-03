@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { buildOpenCodeCommand, buildOpenCodeServeArgs } from "./opencode.js";
+import { buildOpenCodeApiUrl, buildOpenCodeCommand, buildOpenCodeServeArgs } from "./opencode.js";
 import type { QueueAction } from "./types.js";
 
 describe("buildOpenCodeCommand", () => {
@@ -89,6 +89,33 @@ describe("buildOpenCodeServeArgs", () => {
         "--mdns-domain",
         "crewbit.local",
       ],
+    );
+  });
+});
+
+describe("buildOpenCodeApiUrl", () => {
+  it("builds endpoint without directory by default", () => {
+    assert.equal(
+      buildOpenCodeApiUrl("http://localhost:4096", "/session"),
+      "http://localhost:4096/session",
+    );
+  });
+
+  it("adds directory query when provided", () => {
+    assert.equal(
+      buildOpenCodeApiUrl(
+        "http://localhost:4096",
+        "/session",
+        "/repo/.claude/worktrees/crewbit-JIR-1",
+      ),
+      "http://localhost:4096/session?directory=%2Frepo%2F.claude%2Fworktrees%2Fcrewbit-JIR-1",
+    );
+  });
+
+  it("keeps existing query params when adding directory", () => {
+    assert.equal(
+      buildOpenCodeApiUrl("http://localhost:4096/api?token=abc", "/session", "/repo/wt"),
+      "http://localhost:4096/session?token=abc&directory=%2Frepo%2Fwt",
     );
   });
 });

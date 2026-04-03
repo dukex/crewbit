@@ -23,7 +23,7 @@ export class ClaudeCodeRunner implements Runner {
 
     const maxSeconds = getMaxSessionSeconds(config);
     const childEnv = buildChildEnv();
-    const worktree = createWorktree(this.repoRoot, action, config);
+    const worktree = createWorktree(this.repoRoot, action.issueKey, config);
 
     return new Promise((resolve) => {
       const tail: string[] = [];

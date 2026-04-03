@@ -1,8 +1,8 @@
 import { spawn } from "node:child_process";
-import { buildOpenCodeCommand, buildOpenCodeServeArgs } from "../opencode.js";
+import { buildOpenCodeApiUrl, buildOpenCodeCommand, buildOpenCodeServeArgs } from "../opencode.js";
 import type { QueueAction, WorkflowConfig } from "../types.js";
 import type { Runner } from "./types.js";
-import { cleanupWorktree, createWorktree } from "./worktree.js";
+import { cleanupWorktree, createWorktree, getWorktreeInfo } from "./worktree.js";
 
 export class OpenCodeRunner implements Runner {
   constructor(
@@ -15,9 +15,9 @@ export class OpenCodeRunner implements Runner {
 
     const { name, arguments: commandArguments } = buildOpenCodeCommand(action);
     const baseUrl = getOpenCodeBaseUrl(config);
-    const url = `${baseUrl}/session`;
+    const worktreeInfo = getWorktreeInfo(this.repoRoot, action.issueKey, config);
+    const sessionUrl = buildOpenCodeApiUrl(baseUrl, "/session", worktreeInfo.path);
     const maxSeconds = getMaxSessionSeconds(config);
-    const worktree = createWorktree(this.repoRoot, action, config);
     const authUser = config.opencode?.username ?? config.providers.opencode?.username ?? "opencode";
     const authPassword =
       config.opencode?.password ??
@@ -34,10 +34,12 @@ export class OpenCodeRunner implements Runner {
         this.log(`[dry-run] would start: opencode ${args.join(" ")}`);
       }
       this.log(
-        `[dry-run] would call: ${url} -> /session/:id/command ${name} '${commandArguments}'`,
+        `[dry-run] would call: ${sessionUrl} -> /session/:id/command ${name} '${commandArguments}'`,
       );
       return true;
     }
+
+    const worktree = createWorktree(this.repoRoot, action.issueKey, config);
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), maxSeconds * 1000);
@@ -53,7 +55,7 @@ export class OpenCodeRunner implements Runner {
       if (shouldStartServer) {
         const args = buildOpenCodeServeArgs(config.opencode ?? {});
         serverProcess = spawn("opencode", args, {
-          stdio: ["ignore", "pipe", "pipe"],
+          stdio: ["ignore", "ignore", "ignore"],
           cwd: worktree.path,
           env: {
             ...process.env,
@@ -61,7 +63,7 @@ export class OpenCodeRunner implements Runner {
             OPENCODE_SERVER_USERNAME: authUser,
           },
         });
-        const healthUrl = `${baseUrl}/global/health`;
+        const healthUrl = buildOpenCodeApiUrl(baseUrl, "/global/health", worktree.path);
         const start = Date.now();
         const maxWaitMs = 15_000;
         let healthy = false;
@@ -85,7 +87,7 @@ export class OpenCodeRunner implements Runner {
           return false;
         }
       }
-      const sessionResponse = await fetch(url, {
+      const sessionResponse = await fetch(sessionUrl, {
         method: "POST",
         headers,
         body: JSON.stringify({ title: action.issueKey }),
@@ -98,7 +100,12 @@ export class OpenCodeRunner implements Runner {
         return false;
       }
       const sessionData = (await sessionResponse.json()) as { id: string };
-      const commandResponse = await fetch(`${baseUrl}/session/${sessionData.id}/command`, {
+      const commandUrl = buildOpenCodeApiUrl(
+        baseUrl,
+        `/session/${sessionData.id}/command`,
+        worktree.path,
+      );
+      const commandResponse = await fetch(commandUrl, {
         method: "POST",
         headers,
         body: JSON.stringify({

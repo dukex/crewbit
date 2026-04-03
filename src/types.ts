@@ -37,7 +37,7 @@ export interface WorkflowConfig {
     maxSessionSeconds: number;
     worktreePrefix: string;
   };
-  opencode?: OpenCodeServerConfig;
+  opencode?: OpenCodeConfig;
   git?: {
     defaultBranch: string;
     branchPattern: string;
@@ -72,6 +72,8 @@ export interface OpenCodeServerConfig {
   mdnsDomain?: string;
   start?: boolean;
 }
+
+export type OpenCodeConfig = OpenCodeProviderConfig & OpenCodeServerConfig;
 
 export type QueueAction =
   | { type: "run"; issueKey: string; command: string; prompt: string }

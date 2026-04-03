@@ -73,6 +73,8 @@ When `prompt` is set, crewbit interpolates the following placeholders before sen
 | `mdnsDomain` | string   | `opencode.local` | Custom mDNS domain name                   |
 | `start`      | boolean  | `true`      | Start `opencode serve` automatically        |
 
+When `runner: opencode` is used, crewbit creates an isolated git worktree and sends OpenCode API requests with `?directory=<worktree-path>` so each session runs inside that worktree instead of the repository root.
+
 ## `git`
 
 | Field           | Type   | Default | Description                       |

@@ -21,7 +21,7 @@ Before you start, make sure you have:
 Install the latest binary to `/usr/local/bin`:
 
 ```bash
-curl -fsSL https://crewbit.sh/install | sh
+curl -fsSL https://crewbit.sh/install | bash
 ```
 
 You will verify the install works in Step 5 with a dry run.

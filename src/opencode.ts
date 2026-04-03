@@ -5,6 +5,15 @@ export type OpenCodeCommand = {
   arguments: string;
 };
 
+export function buildOpenCodeApiUrl(baseUrl: string, path: string, directory?: string): string {
+  const url = new URL(baseUrl);
+  url.pathname = path.startsWith("/") ? path : `/${path}`;
+  if (directory) {
+    url.searchParams.set("directory", directory);
+  }
+  return url.toString();
+}
+
 export function buildOpenCodeCommand(action: QueueAction): OpenCodeCommand {
   const rawCommand = action.command.trim();
   const commandName = rawCommand.startsWith("/") ? rawCommand.slice(1) : rawCommand;

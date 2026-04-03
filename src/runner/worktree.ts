@@ -1,6 +1,6 @@
 import { execSync, spawnSync } from "node:child_process";
 import { resolve } from "node:path";
-import type { QueueAction, WorkflowConfig } from "../types.js";
+import type { WorkflowConfig } from "../types.js";
 
 export type WorktreeInfo = {
   name: string;
@@ -8,40 +8,51 @@ export type WorktreeInfo = {
   branch: string;
 };
 
-export function createWorktree(
+export function getWorktreeInfo(
   repoRoot: string,
-  action: QueueAction,
+  issueKey: string,
   config: WorkflowConfig,
 ): WorktreeInfo {
-  const worktreeName = `${config.daemon?.worktreePrefix ?? "crewbit"}-${action.issueKey}`;
+  const sanitizedIssueKey = sanitizeIssueKey(issueKey);
+  const worktreeName = `${config.daemon?.worktreePrefix ?? "crewbit"}-${sanitizedIssueKey}`;
   const worktreePath = resolve(repoRoot, ".claude/worktrees", worktreeName);
   const worktreeBranch = `worktree-${worktreeName}`;
 
+  return { name: worktreeName, path: worktreePath, branch: worktreeBranch };
+}
+
+export function createWorktree(
+  repoRoot: string,
+  issueKey: string,
+  config: WorkflowConfig,
+): WorktreeInfo {
+  const worktree = getWorktreeInfo(repoRoot, issueKey, config);
+
   try {
-    execSync(`git worktree add "${worktreePath}" -b "${worktreeBranch}"`, {
+    execSync(`git worktree add "${worktree.path}" -b "${worktree.branch}"`, {
       cwd: repoRoot,
       stdio: "pipe",
     });
   } catch {
     try {
-      execSync(`git worktree remove --force "${worktreePath}"`, {
+      execSync(`git worktree remove --force "${worktree.path}"`, {
         cwd: repoRoot,
         stdio: "pipe",
       });
     } catch {}
     try {
-      execSync(`git branch -D "${worktreeBranch}"`, {
+      execSync(`git branch -D "${worktree.branch}"`, {
         cwd: repoRoot,
         stdio: "pipe",
       });
     } catch {}
-    execSync(`git worktree add "${worktreePath}" -b "${worktreeBranch}"`, {
+    execSync(`git worktree add "${worktree.path}" -b "${worktree.branch}"`, {
       cwd: repoRoot,
       stdio: "pipe",
     });
   }
 
-  return { name: worktreeName, path: worktreePath, branch: worktreeBranch };
+  return worktree;
 }
 
 export function cleanupWorktree(repoRoot: string, worktree: WorktreeInfo): void {
@@ -68,4 +79,9 @@ export function cleanupWorktree(repoRoot: string, worktree: WorktreeInfo): void 
       });
     } catch {}
   }
+}
+
+function sanitizeIssueKey(issueKey: string): string {
+  const sanitized = issueKey.replace(/[^a-zA-Z0-9._-]+/g, "-").replace(/^-+|-+$/g, "");
+  return sanitized.length > 0 ? sanitized : "issue";
 }
