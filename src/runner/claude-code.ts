@@ -14,7 +14,7 @@ export class ClaudeCodeRunner implements Runner {
 
     const prompt = action.prompt;
 
-    this.log(`[RUN] ${action.command} ${action.issueKey}`);
+    this.log(`[RUN] claude --print '${prompt}'`);
 
     if (dryRun) {
       this.log(`[dry-run] would run: claude --print '${prompt}'`);
