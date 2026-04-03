@@ -1,8 +1,8 @@
 import { spawn } from "node:child_process";
 import { buildOpenCodeApiUrl, buildOpenCodeCommand, buildOpenCodeServeArgs } from "../opencode.js";
 import type { QueueAction, WorkflowConfig } from "../types.js";
+import { cleanupWorktree, createWorktree, getWorktreeInfo } from "../worktree.js";
 import type { Runner } from "./types.js";
-import { cleanupWorktree, createWorktree, getWorktreeInfo } from "./worktree.js";
 
 export class OpenCodeRunner implements Runner {
   constructor(

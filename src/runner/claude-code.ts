@@ -1,7 +1,7 @@
 import { spawn } from "node:child_process";
 import type { QueueAction, WorkflowConfig } from "../types.js";
+import { cleanupWorktree, createWorktree } from "../worktree.js";
 import type { Runner } from "./types.js";
-import { cleanupWorktree, createWorktree } from "./worktree.js";
 
 export class ClaudeCodeRunner implements Runner {
   constructor(

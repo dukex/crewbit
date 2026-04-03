@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import type { WorkflowConfig } from "../types.js";
+import type { WorkflowConfig } from "./types.js";
 import { getWorktreeInfo } from "./worktree.js";
 
 const baseConfig: WorkflowConfig = {

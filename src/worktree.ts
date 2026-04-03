@@ -1,6 +1,6 @@
 import { execSync, spawnSync } from "node:child_process";
 import { resolve } from "node:path";
-import type { WorkflowConfig } from "../types.js";
+import type { WorkflowConfig } from "./types.js";
 
 export type WorktreeInfo = {
   name: string;
