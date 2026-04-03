@@ -1,52 +1,381 @@
-#!/bin/sh
-set -e
+#!/usr/bin/env bash
+set -euo pipefail
 
+APP="crewbit"
 REPO="dukex/crewbit"
-INSTALL_DIR="${CREWBIT_INSTALL_DIR:-/usr/local/bin}"
+INSTALL_DIR="${CREWBIT_INSTALL_DIR:-$HOME/.crewbit/bin}"
+REQUESTED_VERSION="${CREWBIT_VERSION:-}"
+NO_MODIFY_PATH=false
+BINARY_PATH=""
+
+MUTED='\033[0;2m'
+RED='\033[0;31m'
+ORANGE='\033[38;5;214m'
+NC='\033[0m'
+
+setup_colors() {
+  if [[ -n "${NO_COLOR:-}" ]] || [[ ! -t 1 ]]; then
+    MUTED=""
+    RED=""
+    ORANGE=""
+    NC=""
+  fi
+}
+
+usage() {
+  cat <<EOF
+crewbit Installer
+
+Usage: install [options]
+
+Options:
+  -h, --help              Display this help message
+  -v, --version <version> Install a specific version (e.g., v0.8.1)
+  -b, --binary <path>     Install from a local binary instead of downloading
+  -d, --install-dir <dir> Install to a custom directory
+      --no-modify-path    Don't modify shell config files (.zshrc, .bashrc, etc.)
+
+Examples:
+  curl -fsSL https://crewbit.dev/install | bash
+  curl -fsSL https://crewbit.dev/install | bash -s -- --version v0.8.1
+  ./install --binary /path/to/crewbit
+EOF
+}
+
+print_message() {
+  local level="$1"
+  local message="$2"
+  local color=""
+
+  case "$level" in
+    info) color="${NC}" ;;
+    warning) color="${ORANGE}" ;;
+    error) color="${RED}" ;;
+  esac
+
+  printf "%b%s%b\n" "$color" "$message" "$NC"
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    -v|--version)
+      if [[ -n "${2:-}" ]]; then
+        REQUESTED_VERSION="$2"
+        shift 2
+      else
+        print_message error "--version requires a version argument"
+        exit 1
+      fi
+      ;;
+    -b|--binary)
+      if [[ -n "${2:-}" ]]; then
+        BINARY_PATH="$2"
+        shift 2
+      else
+        print_message error "--binary requires a path argument"
+        exit 1
+      fi
+      ;;
+    -d|--install-dir)
+      if [[ -n "${2:-}" ]]; then
+        INSTALL_DIR="$2"
+        shift 2
+      else
+        print_message error "--install-dir requires a path argument"
+        exit 1
+      fi
+      ;;
+    --no-modify-path)
+      NO_MODIFY_PATH=true
+      shift
+      ;;
+    *)
+      print_message warning "Unknown option '$1'"
+      shift
+      ;;
+  esac
+done
+
+ensure_dependencies() {
+  if ! command -v curl >/dev/null 2>&1; then
+    print_message error "'curl' is required but not installed"
+    exit 1
+  fi
+}
 
 detect_platform() {
-  os=$(uname -s | tr '[:upper:]' '[:lower:]')
+  local raw_os
+  local os
+  local arch
+
+  raw_os=$(uname -s)
+  os=$(printf "%s" "$raw_os" | tr '[:upper:]' '[:lower:]')
   arch=$(uname -m)
 
+  case "$raw_os" in
+    Darwin*) os="darwin" ;;
+    Linux*) os="linux" ;;
+  esac
+
   case "$arch" in
-    x86_64)        arch="x64" ;;
+    x86_64) arch="x64" ;;
     aarch64|arm64) arch="arm64" ;;
-    *) printf "error: unsupported architecture: %s\n" "$arch" >&2; exit 1 ;;
+    *)
+      print_message error "Unsupported architecture: ${arch}"
+      exit 1
+      ;;
   esac
 
   case "$os" in
     darwin|linux) ;;
-    *) printf "error: unsupported OS: %s\n" "$os" >&2; exit 1 ;;
+    *)
+      print_message error "Unsupported OS: ${os}"
+      exit 1
+      ;;
   esac
+
+  if [[ "$os" == "darwin" && "$arch" == "x64" ]]; then
+    local rosetta_flag
+    rosetta_flag=$(sysctl -n sysctl.proc_translated 2>/dev/null || echo 0)
+    if [[ "$rosetta_flag" == "1" ]]; then
+      arch="arm64"
+    fi
+  fi
 
   printf "%s-%s" "$os" "$arch"
 }
 
 latest_version() {
   curl -fsSL "https://api.github.com/repos/${REPO}/releases/latest" \
-    | grep '"tag_name"' \
-    | sed 's/.*"tag_name": *"\(.*\)".*/\1/'
+    | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p'
+}
+
+resolve_version_and_url() {
+  local platform="$1"
+  local version=""
+
+  if [[ -z "$REQUESTED_VERSION" ]]; then
+    version=$(latest_version)
+    if [[ -z "$version" ]]; then
+      print_message error "Failed to fetch latest version"
+      exit 1
+    fi
+  else
+    version="${REQUESTED_VERSION#v}"
+    local http_status
+    http_status=$(curl -sI -o /dev/null -w "%{http_code}" \
+      "https://github.com/${REPO}/releases/tag/v${version}")
+    case "$http_status" in
+      2*|3*)
+        ;;
+      404)
+        print_message error "Release v${version} not found"
+        print_message info "Available releases: https://github.com/${REPO}/releases"
+        exit 1
+        ;;
+      *)
+        print_message error "Failed to validate release v${version} (HTTP ${http_status})"
+        print_message info "Check https://github.com/${REPO}/releases or try again later."
+        exit 1
+        ;;
+    esac
+    version="v${version}"
+  fi
+
+  printf "%s" "${version}|https://github.com/${REPO}/releases/download/${version}/${APP}-${platform}"
+}
+
+download_binary() {
+  local url="$1"
+  local output="$2"
+
+  if [ -t 2 ]; then
+    curl -fL# -o "$output" "$url"
+  else
+    curl -fL -o "$output" "$url"
+  fi
+}
+
+ensure_install_dir() {
+  if [[ -d "$INSTALL_DIR" ]]; then
+    return
+  fi
+
+  if mkdir -p "$INSTALL_DIR" 2>/dev/null; then
+    return
+  fi
+
+  sudo mkdir -p "$INSTALL_DIR"
+}
+
+install_binary() {
+  local source_path="$1"
+
+  ensure_install_dir
+
+  if [[ -w "$INSTALL_DIR" ]]; then
+    mv "$source_path" "${INSTALL_DIR}/${APP}"
+  else
+    sudo mv "$source_path" "${INSTALL_DIR}/${APP}"
+  fi
+}
+
+install_from_local() {
+  if [[ ! -f "$BINARY_PATH" ]]; then
+    print_message error "Binary not found at ${BINARY_PATH}"
+    exit 1
+  fi
+
+  local tmp
+  tmp=$(mktemp)
+  cp "$BINARY_PATH" "$tmp"
+  chmod +x "$tmp"
+  install_binary "$tmp"
+}
+
+add_to_path() {
+  local config_file="$1"
+  local command="$2"
+
+  if grep -Fxq "$command" "$config_file"; then
+    print_message info "Command already exists in ${config_file}, skipping."
+  elif [[ -w "$config_file" ]]; then
+    printf "\n# %s\n%s\n" "$APP" "$command" >> "$config_file"
+    print_message info "Added ${APP} to PATH in ${config_file}"
+  else
+    print_message warning "Manually add to PATH in ${config_file} (or similar):"
+    print_message info "  $command"
+  fi
+}
+
+quote_path() {
+  local value="$1"
+  value=${value//\'/\'"\'"\'}
+  printf "'%s'" "$value"
+}
+
+maybe_update_path() {
+  if [[ "$NO_MODIFY_PATH" == "true" ]]; then
+    return
+  fi
+
+  if [[ ":$PATH:" == *":${INSTALL_DIR}:"* ]]; then
+    return
+  fi
+
+  local xdg_config_home
+  xdg_config_home=${XDG_CONFIG_HOME:-$HOME/.config}
+
+  local current_shell
+  current_shell=$(basename "${SHELL:-sh}")
+
+  local config_files=""
+  case "$current_shell" in
+    fish)
+      config_files="$xdg_config_home/fish/config.fish"
+      ;;
+    zsh)
+      config_files="${ZDOTDIR:-$HOME}/.zshrc ${ZDOTDIR:-$HOME}/.zshenv $xdg_config_home/zsh/.zshrc $xdg_config_home/zsh/.zshenv"
+      ;;
+    bash)
+      config_files="$HOME/.bashrc $HOME/.bash_profile $HOME/.profile $xdg_config_home/bash/.bashrc $xdg_config_home/bash/.bash_profile"
+      ;;
+    *)
+      config_files="$HOME/.bashrc $HOME/.bash_profile $HOME/.profile"
+      ;;
+  esac
+
+  local config_file=""
+  for file in $config_files; do
+    if [[ -f "$file" ]]; then
+      config_file="$file"
+      break
+    fi
+  done
+
+  local export_command
+  export_command="export PATH=$(quote_path "$INSTALL_DIR"):\$PATH"
+
+  local fish_command
+  fish_command="fish_add_path $(quote_path "$INSTALL_DIR")"
+
+  if [[ -z "$config_file" ]]; then
+    print_message warning "No shell config file found. Add this to your shell config:"
+    print_message info "  ${export_command}"
+    return
+  fi
+
+  case "$current_shell" in
+    fish)
+      add_to_path "$config_file" "$fish_command"
+      ;;
+    *)
+      add_to_path "$config_file" "$export_command"
+      ;;
+  esac
+}
+
+check_existing_install() {
+  local target_path="$1"
+
+  if ! command -v "$APP" >/dev/null 2>&1; then
+    return
+  fi
+
+  local existing_path
+  existing_path=$(command -v "$APP" 2>/dev/null || true)
+  if [[ -z "$existing_path" ]]; then
+    return
+  fi
+
+  if [[ "$existing_path" != "$target_path" ]]; then
+    print_message warning "Found existing ${APP} at ${existing_path}."
+    print_message warning "This install will place ${APP} at ${target_path}."
+    print_message warning "You may want to remove the older binary or update your PATH."
+  fi
 }
 
 main() {
-  platform=$(detect_platform)
-  version=$(latest_version)
-  url="https://github.com/${REPO}/releases/download/${version}/crewbit-${platform}"
-  tmp=$(mktemp)
+  setup_colors
+  ensure_dependencies
 
-  printf "Installing crewbit %s (%s)...\n" "$version" "$platform"
-
-  curl -fsSL "$url" -o "$tmp"
-  chmod +x "$tmp"
-
-  if [ -w "$INSTALL_DIR" ]; then
-    mv "$tmp" "${INSTALL_DIR}/crewbit"
-  else
-    sudo mv "$tmp" "${INSTALL_DIR}/crewbit"
+  if [[ -n "$BINARY_PATH" ]]; then
+    print_message info "${MUTED}Installing ${NC}${APP}${MUTED} from local binary${NC}"
+    check_existing_install "${INSTALL_DIR}/${APP}"
+    install_from_local
+    maybe_update_path
+    print_message info "${MUTED}Done! ${APP} installed to${NC} ${INSTALL_DIR}/${APP}"
+    print_message info "Run: ${APP} ./your-agent.yaml"
+    return
   fi
 
-  printf "\nDone! crewbit installed to %s/crewbit\n" "$INSTALL_DIR"
-  printf "Run: crewbit ./your-agent.yaml\n"
+  local platform
+  platform=$(detect_platform)
+
+  local resolved
+  resolved=$(resolve_version_and_url "$platform")
+
+  local version
+  local url
+  version="${resolved%%|*}"
+  url="${resolved##*|}"
+
+  local tmp
+  tmp=$(mktemp)
+
+  print_message info "${MUTED}Installing ${NC}${APP}${MUTED} ${version} (${platform})${NC}"
+  check_existing_install "${INSTALL_DIR}/${APP}"
+  download_binary "$url" "$tmp"
+  chmod +x "$tmp"
+  install_binary "$tmp"
+  maybe_update_path
+
+  print_message info "${MUTED}Done! ${APP} installed to${NC} ${INSTALL_DIR}/${APP}"
+  print_message info "Run: ${APP} ./your-agent.yaml"
 }
 
-main
+main "$@"
