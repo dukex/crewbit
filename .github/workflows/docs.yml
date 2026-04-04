@@ -8,6 +8,12 @@ on:
       - ".github/workflows/docs.yml"
       - "package.json"
       - "pnpm-lock.yaml"
+  pull_request:
+    paths:
+      - "docs/**"
+      - ".github/workflows/docs.yml"
+      - "package.json"
+      - "pnpm-lock.yaml"
   workflow_dispatch:
 
 permissions:
@@ -36,6 +42,7 @@ jobs:
           cache: pnpm
 
       - uses: actions/configure-pages@v4
+        if: github.event_name == 'push'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
@@ -44,12 +51,14 @@ jobs:
         run: pnpm docs:build
 
       - uses: actions/upload-pages-artifact@v3
+        if: github.event_name == 'push'
         with:
           path: docs/.vitepress/dist
 
   deploy:
     name: Deploy docs
     needs: build
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     environment:
       name: github-pages

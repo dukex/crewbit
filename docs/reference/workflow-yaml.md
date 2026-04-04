@@ -63,7 +63,7 @@ When `prompt` is set, crewbit interpolates the following placeholders before sen
 
 | Field        | Type     | Default     | Description                                 |
 | ------------ | -------- | ----------- | ------------------------------------------- |
-| `baseUrl`    | string   | —           | OpenCode server base URL (e.g. http://localhost:4096) |
+| `baseUrl`    | string   | —           | OpenCode server base URL (e.g. `http://localhost:4096`) |
 | `username`   | string   | `opencode`  | HTTP basic auth username                    |
 | `password`   | string   | —           | HTTP basic auth password                    |
 | `port`       | number   | `4096`      | Port to start `opencode serve` with         |
