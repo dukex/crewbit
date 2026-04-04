@@ -65,7 +65,7 @@ jobs:
       - run: bun install --ignore-scripts
 
       - name: Build binary
-        run: bun build --compile --target=${{ matrix.target }} daemon.ts --outfile ${{ matrix.artifact }}
+        run: bun build --compile --target=${{ matrix.target }} src/cli.ts --outfile ${{ matrix.artifact }}
 
       - name: Upload asset to release
         run: gh release upload "v${{ needs.release.outputs.version }}" "${{ matrix.artifact }}" --clobber

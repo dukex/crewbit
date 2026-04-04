@@ -137,7 +137,7 @@ Scan all comments for one whose body starts with `# Crewbit plan`.
 
    c. Run the mutation (Helper query #3) with the values from (a) and (b), using the **"In progress"** `optionId`.
 
-2. Read all relevant source files for the affected area (`src/`, `daemon.ts`, `examples/`, `docs/`).
+2. Read all relevant source files for the affected area (`src/`, `examples/`, `docs/`).
 3. Break the acceptance criteria into concrete implementation steps.
 4. Make every technical decision needed. Document the reasoning; do not ask the user unless genuinely blocked.
 5. Post the plan as a comment:

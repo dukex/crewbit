@@ -18,18 +18,18 @@ pnpm format           # format only
 
 ## Architecture
 
-crewbit is a single-process daemon written in TypeScript (ESM, Node ≥ 20). Entry point is `daemon.ts`; library code lives under `src/`.
+crewbit is a single-process daemon written in TypeScript (ESM, Node ≥ 20). Entry point is `src/cli.ts`; library code lives under `src/`.
 
 ### Core flow
 
 ```
-daemon.ts → loadConfig() → createProvider() → resolveNextAction() → runClaude()
+src/cli.ts → runDaemonCommand() → loadConfig() → createProvider() → resolveNextAction() → runClaude()
 ```
 
 1. **`loadConfig`** (`src/workflow.ts`) — reads the YAML workflow file and returns a typed `WorkflowConfig`.
 2. **`createProvider`** (`src/workflow.ts`) — factory that returns an `IssueProvider` based on `config.provider`. Only `jira` is supported today.
 3. **`resolveNextAction`** (`src/workflow.ts`) — iterates `config.transitions` in declaration order, calls `provider.getIssuesByStatus()` for each `from` status, and returns the first matching issue as a `run` action (or `idle`).
-4. **`runClaude`** (`daemon.ts`) — creates an isolated git worktree under `.claude/worktrees/<prefix>-<issueKey>`, spawns `claude --dangerously-skip-permissions --no-session-persistence --print <command> <issueKey>` inside it, then cleans up the worktree on exit.
+4. **`runClaude`** (`src/commands/daemon.ts`) — creates an isolated git worktree under `.claude/worktrees/<prefix>-<issueKey>`, spawns `claude --dangerously-skip-permissions --no-session-persistence --print <command> <issueKey>` inside it, then cleans up the worktree on exit.
 
 ### Key design points
 

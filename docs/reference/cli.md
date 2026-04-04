@@ -4,6 +4,8 @@
 
 ```
 crewbit <workflow-file> [options]
+crewbit prune [--dry-run]
+crewbit --version
 ```
 
 ## Arguments
