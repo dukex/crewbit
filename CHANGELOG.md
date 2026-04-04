@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/dukex/crewbit/compare/v1.4.0...v1.5.0) (2026-04-04)
+
+
+### Features
+
+* add OpenCode runner support ([615b129](https://github.com/dukex/crewbit/commit/615b1294623dc89ee247602e98d504e164add24b))
+
 # [1.4.0](https://github.com/dukex/crewbit/compare/v1.3.0...v1.4.0) (2026-03-30)
 
 
