@@ -75,6 +75,12 @@ export interface OpenCodeServerConfig {
 
 export type OpenCodeConfig = OpenCodeProviderConfig & OpenCodeServerConfig;
 
-export type QueueAction =
-  | { type: "run"; issueKey: string; command: string; prompt: string }
-  | { type: "idle" };
+export type RunAction = {
+  type: "run";
+  issueKey: string;
+  command: string;
+  prompt: string;
+};
+export type IdleAction = { type: "idle" };
+
+export type QueueAction = RunAction | IdleAction;

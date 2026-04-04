@@ -15,7 +15,7 @@ export function getWorktreeInfo(
 ): WorktreeInfo {
   const sanitizedIssueKey = sanitizeIssueKey(issueKey);
   const worktreeName = `${config.daemon?.worktreePrefix ?? "crewbit"}-${sanitizedIssueKey}`;
-  const worktreePath = resolve(repoRoot, ".claude/worktrees", worktreeName);
+  const worktreePath = resolve(repoRoot, ".crewbit/worktrees", worktreeName);
   const worktreeBranch = `worktree-${worktreeName}`;
 
   return { name: worktreeName, path: worktreePath, branch: worktreeBranch };

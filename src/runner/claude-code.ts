@@ -1,29 +1,19 @@
 import { spawn } from "node:child_process";
-import type { QueueAction, WorkflowConfig } from "../types.js";
-import { cleanupWorktree, createWorktree } from "../worktree.js";
-import type { Runner } from "./types.js";
+import type { WorkflowConfig } from "../types.js";
+import { BaseRunner, type LiveRunContext, type PreparedRunContext } from "./base.js";
 
-export class ClaudeCodeRunner implements Runner {
-  constructor(
-    private readonly repoRoot: string,
-    private readonly log: (message: string) => void,
-  ) {}
+export class ClaudeCodeRunner extends BaseRunner {
+  protected formatRunLabel(context: PreparedRunContext): string {
+    return `claude --print '${context.prompt}'`;
+  }
 
-  async run(action: QueueAction, config: WorkflowConfig, dryRun: boolean): Promise<boolean> {
-    if (action.type === "idle") return true;
+  protected async runDry(context: PreparedRunContext, _config: WorkflowConfig): Promise<boolean> {
+    this.log(`[dry-run] would run: claude --print '${context.prompt}'`);
+    return true;
+  }
 
-    const prompt = action.prompt;
-
-    this.log(`[RUN] claude --print '${prompt}'`);
-
-    if (dryRun) {
-      this.log(`[dry-run] would run: claude --print '${prompt}'`);
-      return true;
-    }
-
-    const maxSeconds = getMaxSessionSeconds(config);
+  protected async runLive(context: LiveRunContext, _config: WorkflowConfig): Promise<boolean> {
     const childEnv = buildChildEnv();
-    const worktree = createWorktree(this.repoRoot, action.issueKey, config);
 
     return new Promise((resolve) => {
       const tail: string[] = [];
@@ -31,12 +21,12 @@ export class ClaudeCodeRunner implements Runner {
 
       const child = spawn(
         "claude",
-        ["--dangerously-skip-permissions", "--no-session-persistence", "--print", prompt],
+        ["--dangerously-skip-permissions", "--no-session-persistence", "--print", context.prompt],
         {
           stdio: ["ignore", "pipe", "pipe"],
-          cwd: worktree.path,
+          cwd: context.worktree.path,
           env: childEnv,
-          timeout: maxSeconds * 1000,
+          timeout: context.maxSeconds * 1000,
         },
       );
 
@@ -67,9 +57,8 @@ export class ClaudeCodeRunner implements Runner {
       });
 
       child.on("close", (code, signal) => {
-        cleanupWorktree(this.repoRoot, worktree);
         if (signal) {
-          this.log(`[WARN] Claude killed by signal: ${signal} (timeout=${maxSeconds}s)`);
+          this.log(`[WARN] Claude killed by signal: ${signal} (timeout=${context.maxSeconds}s)`);
           if (tail.length > 0) this.log(`[TAIL]\n${tail.join("\n")}`);
           resolve(false);
         } else if (code !== 0) {
@@ -98,8 +87,4 @@ function buildChildEnv(): Record<string, string> {
       ([key]) => !blockedEnv.has(key) && !key.startsWith("CLAUDE_CODE_"),
     ),
   ) as Record<string, string>;
-}
-
-function getMaxSessionSeconds(config: WorkflowConfig): number {
-  return Number(process.env.MAX_SESSION_SECONDS ?? config.daemon?.maxSessionSeconds ?? 900);
 }

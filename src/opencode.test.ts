@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { buildOpenCodeApiUrl, buildOpenCodeCommand, buildOpenCodeServeArgs } from "./opencode.js";
+import {
+  buildOpenCodeApiUrl,
+  buildOpenCodeCommand,
+  buildOpenCodeServeArgs,
+} from "./runner/opencode.js";
 import type { QueueAction } from "./types.js";
 
 describe("buildOpenCodeCommand", () => {
@@ -106,9 +110,9 @@ describe("buildOpenCodeApiUrl", () => {
       buildOpenCodeApiUrl(
         "http://localhost:4096",
         "/session",
-        "/repo/.claude/worktrees/crewbit-JIR-1",
+        "/repo/.crewbit/worktrees/crewbit-JIR-1",
       ),
-      "http://localhost:4096/session?directory=%2Frepo%2F.claude%2Fworktrees%2Fcrewbit-JIR-1",
+      "http://localhost:4096/session?directory=%2Frepo%2F.crewbit%2Fworktrees%2Fcrewbit-JIR-1",
     );
   });
 

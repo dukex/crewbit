@@ -20,7 +20,7 @@ describe("getWorktreeInfo", () => {
   it("sanitizes issue keys for path-safe worktree names", () => {
     const worktree = getWorktreeInfo("/repo", "owner/repo#123", baseConfig);
     assert.equal(worktree.name, "crewbit-owner-repo-123");
-    assert.equal(worktree.path, "/repo/.claude/worktrees/crewbit-owner-repo-123");
+    assert.equal(worktree.path, "/repo/.crewbit/worktrees/crewbit-owner-repo-123");
     assert.equal(worktree.branch, "worktree-crewbit-owner-repo-123");
   });
 
