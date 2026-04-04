@@ -123,12 +123,12 @@ export class OpenCodeRunner extends BaseRunner {
   }
 }
 
-export type OpenCodeCommand = {
+type OpenCodeCommand = {
   name: string;
   arguments: string;
 };
 
-export function buildOpenCodeApiUrl(baseUrl: string, path: string, directory?: string): string {
+function buildOpenCodeApiUrl(baseUrl: string, path: string, directory?: string): string {
   const url = new URL(baseUrl);
   url.pathname = path.startsWith("/") ? path : `/${path}`;
   if (directory) {
@@ -137,7 +137,7 @@ export function buildOpenCodeApiUrl(baseUrl: string, path: string, directory?: s
   return url.toString();
 }
 
-export function buildOpenCodeCommand(action: RunAction): OpenCodeCommand {
+function buildOpenCodeCommand(action: RunAction): OpenCodeCommand {
   const rawCommand = action.command.trim();
   const commandName = rawCommand.startsWith("/") ? rawCommand.slice(1) : rawCommand;
   const prompt = action.prompt.trim();
@@ -160,7 +160,7 @@ export function buildOpenCodeCommand(action: RunAction): OpenCodeCommand {
   return { name: commandName, arguments: prompt };
 }
 
-export function buildOpenCodeServeArgs(config: OpenCodeServerConfig): string[] {
+function buildOpenCodeServeArgs(config: OpenCodeServerConfig): string[] {
   const args: string[] = ["serve"];
   if (typeof config.port === "number") {
     args.push("--port", String(config.port));
