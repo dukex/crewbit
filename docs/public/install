@@ -36,8 +36,8 @@ Options:
       --no-modify-path    Don't modify shell config files (.zshrc, .bashrc, etc.)
 
 Examples:
-  curl -fsSL https://crewbit.dev/install | bash
-  curl -fsSL https://crewbit.dev/install | bash -s -- --version v0.8.1
+  curl -fsSL https://crewbit.sh/install | bash
+  curl -fsSL https://crewbit.sh/install | bash -s -- --version v0.8.1
   ./install --binary /path/to/crewbit
 EOF
 }

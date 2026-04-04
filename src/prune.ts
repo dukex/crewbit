@@ -32,7 +32,7 @@ export function filterCrewbitWorktrees(
   entries: WorktreeEntry[],
   repoRoot: string,
 ): WorktreeEntry[] {
-  const worktreesDir = `${resolve(repoRoot, ".claude/worktrees")}/`;
+  const worktreesDir = `${resolve(repoRoot, ".crewbit/worktrees")}/`;
   return entries.filter((entry) => entry.path.startsWith(worktreesDir));
 }
 

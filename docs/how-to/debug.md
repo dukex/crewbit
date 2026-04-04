@@ -68,7 +68,7 @@ If an issue is unassigned or assigned to someone else, it will not appear in the
 
 ## Step 6: inspect the worktrees directory
 
-crewbit creates worktrees under `.claude/worktrees/` inside the repository. If a previous session was interrupted, stale worktree entries can be left behind. They do not block new sessions, but they consume disk space and can cause confusion.
+crewbit creates worktrees under `.crewbit/worktrees/` inside the repository. If a previous session was interrupted, stale worktree entries can be left behind. They do not block new sessions, but they consume disk space and can cause confusion.
 
 List existing worktrees:
 
@@ -79,7 +79,7 @@ git worktree list
 Remove a specific stale entry:
 
 ```bash
-git worktree remove .claude/worktrees/<name>
+git worktree remove .crewbit/worktrees/<name>
 ```
 
 Prune all entries whose directories no longer exist:
