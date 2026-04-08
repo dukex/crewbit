@@ -53,6 +53,10 @@ Each Claude session runs in its own `git worktree` checked out on a temporary br
 - The working directory Claude sees is clean — no leftover state from previous sessions.
 - crewbit can safely delete the worktree after the session without affecting the feature branch Claude pushed.
 
+### No-worktree mode
+
+Setting `git.disable: true` in the workflow file turns off worktree creation entirely. The agent runs directly in the directory where crewbit was started. This is the right choice for tasks that do not involve a local git repository — writing tasks, research, API-only work, or ephemeral CI containers that already have a clean checkout. See [How to run crewbit without git worktrees](../how-to/run-without-git.md) for a step-by-step guide.
+
 ## Backoff strategy
 
 - **Empty queue** — wait time doubles each cycle, capped at 10× the base `waitSeconds`.
