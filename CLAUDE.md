@@ -36,7 +36,7 @@ src/cli.ts → runDaemonCommand() → loadConfig() → createProvider() → reso
 - **Transition order = priority.** Whichever transition is listed first in the YAML wins when multiple queues have work.
 - **Worktree isolation.** Each Claude session runs in its own `git worktree` so it gets a clean checkout. The temp branch (`worktree-<prefix>-<issueKey>`) is deleted on cleanup; the feature branch Claude creates is preserved.
 - **Exponential backoff.** Empty queue doubles the wait (capped at 10×). Failed sessions back off separately (capped at 32×).
-- **Blocked env vars.** `CLAUDE_CODE_SSE_PORT`, `ANTHROPIC_BASE_URL`, `NODE_OPTIONS`, `VSCODE_*`, and any `CLAUDE_CODE_*` vars are stripped before spawning the child Claude process to prevent conflicts.
+- **Blocked env vars.** `CLAUDE_CODE_SSE_PORT`, `NODE_OPTIONS`, `VSCODE_*`, and any `CLAUDE_CODE_*` vars are stripped before spawning the child Claude process to prevent conflicts.
 
 ### Adding a provider
 
