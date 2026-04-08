@@ -57,7 +57,7 @@ When `prompt` is set, crewbit interpolates the following placeholders before sen
 | ------------------- | ------ | ------- | ------------------------------------ |
 | `waitSeconds`       | number | 30      | Polling interval when queue is empty |
 | `maxSessionSeconds` | number | 7200    | Hard timeout per Claude session      |
-| `worktreePrefix`    | string | —       | Prefix for git worktree branch names |
+| `worktreePrefix`    | string | —       | Deprecated — use `git.worktreePrefix` instead |
 
 ## `opencode`
 
@@ -77,11 +77,15 @@ When `runner: opencode` is used, crewbit creates an isolated git worktree and se
 
 ## `git`
 
-| Field           | Type   | Default | Description                       |
-| --------------- | ------ | ------- | --------------------------------- |
-| `defaultBranch` | string | `main`  | Base branch for new worktrees     |
-| `branchPattern` | string | —       | Template for feature branch names |
-| `slugMaxLength` | number | 40      | Max chars in the slug portion     |
+| Field             | Type    | Default    | Description                                            |
+| ----------------- | ------- | ---------- | ------------------------------------------------------ |
+| `defaultBranch`   | string  | `main`     | Base branch for new worktrees                          |
+| `branchPattern`   | string  | —          | Template for feature branch names                      |
+| `slugMaxLength`   | number  | 40         | Max chars in the slug portion                          |
+| `worktreePrefix`  | string  | `crewbit`  | Prefix for git worktree branch names                   |
+| `disable`         | boolean | `false`    | Skip git worktree creation; agent runs in the cwd      |
+
+When `git.disable: true`, no worktree is created. The agent runs directly in the directory where crewbit was started. Useful for non-git projects or tasks that don't involve a codebase.
 
 ### `git.branchPattern` tokens
 

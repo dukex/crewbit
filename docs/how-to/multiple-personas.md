@@ -8,19 +8,19 @@ Read [How crewbit works](../explanation/how-it-works.md) first, specifically the
 
 ## Make each daemon's `worktreePrefix` unique
 
-Every daemon must have a distinct `worktreePrefix` under `daemon:`:
+Every daemon must have a distinct `worktreePrefix` under `git:`:
 
 ```yaml
 # dev-junior.yaml
-daemon:
+git:
   worktreePrefix: dev-junior
 
 # qa-bot.yaml
-daemon:
+git:
   worktreePrefix: qa-bot
 
 # releaser.yaml
-daemon:
+git:
   worktreePrefix: releaser
 ```
 

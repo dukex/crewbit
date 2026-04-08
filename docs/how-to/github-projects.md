@@ -60,12 +60,12 @@ transitions:
 daemon:
   waitSeconds: 30
   maxSessionSeconds: 7200
-  worktreePrefix: dev-junior
 
 git:
   defaultBranch: main
   branchPattern: "{issueKey}/{slug}"
   slugMaxLength: 40
+  worktreePrefix: dev-junior
 ```
 
 `owner` is the GitHub organization or user login. `from` must match the option name in the `Status` field exactly, including capitalisation.

@@ -102,6 +102,8 @@ agent:
 daemon:
   waitSeconds: 30
   maxSessionSeconds: 7200
+
+git:
   worktreePrefix: my-agent
 ```
 

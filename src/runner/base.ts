@@ -38,6 +38,24 @@ export abstract class BaseRunner implements Runner {
       return this.runDry(preparedContext, config);
     }
 
+    const gitDisabled = config.git?.disable === true;
+
+    if (gitDisabled) {
+      const liveContext: LiveRunContext = {
+        ...preparedContext,
+        worktree: { name: "", path: this.repoRoot, branch: "" },
+      };
+      const timeout = setTimeout(
+        () => preparedContext.controller.abort(),
+        preparedContext.maxSeconds * 1000,
+      );
+      try {
+        return await this.runLive(liveContext, config);
+      } finally {
+        clearTimeout(timeout);
+      }
+    }
+
     const worktree = createWorktree(this.repoRoot, preparedContext.issueKey, config);
     const liveContext: LiveRunContext = {
       ...preparedContext,

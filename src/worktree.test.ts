@@ -24,15 +24,38 @@ describe("getWorktreeInfo", () => {
     assert.equal(worktree.branch, "worktree-crewbit-owner-repo-123");
   });
 
-  it("uses configured worktree prefix", () => {
+  it("uses git.worktreePrefix when configured", () => {
     const worktree = getWorktreeInfo("/repo", "JIR-42", {
       ...baseConfig,
-      daemon: {
-        waitSeconds: 30,
-        maxSessionSeconds: 900,
+      git: {
+        defaultBranch: "main",
+        branchPattern: "",
+        slugMaxLength: 50,
         worktreePrefix: "dev-junior",
       },
     });
     assert.equal(worktree.name, "dev-junior-JIR-42");
+  });
+
+  it("falls back to daemon.worktreePrefix for backwards compatibility", () => {
+    const worktree = getWorktreeInfo("/repo", "JIR-42", {
+      ...baseConfig,
+      daemon: { waitSeconds: 30, maxSessionSeconds: 900, worktreePrefix: "legacy-bot" },
+    });
+    assert.equal(worktree.name, "legacy-bot-JIR-42");
+  });
+
+  it("git.worktreePrefix takes precedence over daemon.worktreePrefix", () => {
+    const worktree = getWorktreeInfo("/repo", "JIR-42", {
+      ...baseConfig,
+      git: {
+        defaultBranch: "main",
+        branchPattern: "",
+        slugMaxLength: 50,
+        worktreePrefix: "new-bot",
+      },
+      daemon: { waitSeconds: 30, maxSessionSeconds: 900, worktreePrefix: "old-bot" },
+    });
+    assert.equal(worktree.name, "new-bot-JIR-42");
   });
 });

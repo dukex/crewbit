@@ -67,12 +67,12 @@ agent:
 daemon:
   waitSeconds: 30
   maxSessionSeconds: 7200
-  worktreePrefix: dev-junior
 
 git:
   defaultBranch: main
   branchPattern: "{issueKey}/{slug}"
   slugMaxLength: 40
+  worktreePrefix: dev-junior
 ```
 
 Required fields under `providers.github-projects`:

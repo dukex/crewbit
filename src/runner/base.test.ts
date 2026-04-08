@@ -85,4 +85,47 @@ describe("BaseRunner", () => {
     assert.equal(runner.dryContexts[0]?.prompt, "/merge JIR-99");
     assert.equal(logs[0], "[RUN] /merge :: /merge JIR-99");
   });
+
+  it("runs live directly in repoRoot when git.disable is true", async () => {
+    const logs: string[] = [];
+    const runner = new TestRunner("/repo", (message) => logs.push(message));
+    const action: QueueAction = {
+      type: "run",
+      issueKey: "JIR-1",
+      command: "/develop",
+      prompt: "/develop JIR-1",
+    };
+    const config: WorkflowConfig = {
+      ...baseConfig,
+      git: { defaultBranch: "main", branchPattern: "", slugMaxLength: 50, disable: true },
+    };
+
+    const result = await runner.run(action, config, false);
+
+    assert.equal(result, true);
+    assert.equal(runner.liveContexts.length, 1);
+    assert.equal(runner.liveContexts[0]?.worktree.path, "/repo");
+    assert.equal(runner.liveContexts[0]?.worktree.name, "");
+  });
+
+  it("dry-run still works when git.disable is true", async () => {
+    const logs: string[] = [];
+    const runner = new TestRunner("/repo", (message) => logs.push(message));
+    const action: QueueAction = {
+      type: "run",
+      issueKey: "JIR-2",
+      command: "/develop",
+      prompt: "/develop JIR-2",
+    };
+    const config: WorkflowConfig = {
+      ...baseConfig,
+      git: { defaultBranch: "main", branchPattern: "", slugMaxLength: 50, disable: true },
+    };
+
+    const result = await runner.run(action, config, true);
+
+    assert.equal(result, true);
+    assert.equal(runner.dryContexts.length, 1);
+    assert.equal(runner.liveContexts.length, 0);
+  });
 });

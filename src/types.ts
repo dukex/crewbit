@@ -34,13 +34,16 @@ export interface WorkflowConfig {
   daemon?: {
     waitSeconds: number;
     maxSessionSeconds: number;
-    worktreePrefix: string;
+    /** @deprecated use git.worktreePrefix instead */
+    worktreePrefix?: string;
   };
   opencode?: OpenCodeConfig;
   git?: {
     defaultBranch: string;
     branchPattern: string;
     slugMaxLength: number;
+    worktreePrefix?: string;
+    disable?: boolean;
   };
 }
 

@@ -14,7 +14,8 @@ export function getWorktreeInfo(
   config: WorkflowConfig,
 ): WorktreeInfo {
   const sanitizedIssueKey = sanitizeIssueKey(issueKey);
-  const worktreeName = `${config.daemon?.worktreePrefix ?? "crewbit"}-${sanitizedIssueKey}`;
+  const worktreePrefix = config.git?.worktreePrefix ?? config.daemon?.worktreePrefix ?? "crewbit";
+  const worktreeName = `${worktreePrefix}-${sanitizedIssueKey}`;
   const worktreePath = resolve(repoRoot, ".crewbit/worktrees", worktreeName);
   const worktreeBranch = `worktree-${worktreeName}`;
 
