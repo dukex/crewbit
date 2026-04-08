@@ -10,23 +10,23 @@ crewbit --version
 
 ## Arguments
 
-| Argument          | Description                        |
-| ----------------- | ---------------------------------- |
-| `<workflow-file>` | Path to a workflow YAML file       |
+| Argument          | Description                  |
+| ----------------- | ---------------------------- |
+| `<workflow-file>` | Path to a workflow YAML file |
 
 ## Options
 
-| Flag        | Description                                         |
-| ----------- | --------------------------------------------------- |
-| `--dry-run` | Print what would run without spawning Claude        |
-| `--version` | Print the crewbit version and exit                  |
-| `--help`    | Show usage information                              |
+| Flag        | Description                                  |
+| ----------- | -------------------------------------------- |
+| `--dry-run` | Print what would run without spawning Claude |
+| `--version` | Print the crewbit version and exit           |
+| `--help`    | Show usage information                       |
 
 ## Environment variables
 
-| Variable              | Description                                      |
-| --------------------- | ------------------------------------------------ |
-| `WAIT_SECONDS`        | Override `daemon.waitSeconds` from the YAML      |
+| Variable              | Description                                       |
+| --------------------- | ------------------------------------------------- |
+| `WAIT_SECONDS`        | Override `daemon.waitSeconds` from the YAML       |
 | `MAX_SESSION_SECONDS` | Override `daemon.maxSessionSeconds` from the YAML |
-| `JIRA_EMAIL`          | Jira account email (Jira provider)               |
-| `JIRA_API_TOKEN`      | Jira API token (Jira provider)                   |
+| `JIRA_EMAIL`          | Jira account email (Jira provider)                |
+| `JIRA_API_TOKEN`      | Jira API token (Jira provider)                    |

@@ -85,7 +85,6 @@ export class ClaudeCodeRunner extends BaseRunner {
 function buildChildEnv(): Record<string, string> {
   const blockedEnv = new Set([
     "CLAUDE_CODE_SSE_PORT",
-    "ANTHROPIC_BASE_URL",
     "NODE_OPTIONS",
     "VSCODE_INSPECTOR_OPTIONS",
     "VSCODE_INJECTION",

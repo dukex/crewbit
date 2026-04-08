@@ -68,13 +68,12 @@ This prevents hammering the issue tracker API when there's no work, and gives tr
 
 Before spawning Claude, crewbit strips a specific set of environment variables from the child process's environment to prevent conflicts and accidental configuration inheritance:
 
-| Variable / pattern | Why it is stripped |
-| --- | --- |
-| `CLAUDE_CODE_SSE_PORT` | The parent Claude session binds to this port for its local server. Inheriting the same port would cause the child Claude process to collide with the parent. |
-| `ANTHROPIC_BASE_URL` | Set by some development proxies or testing setups. Inheriting it could silently redirect the child's API calls to the wrong endpoint. |
-| `NODE_OPTIONS` | Often set by Node version managers or debugging tools. Flags like `--inspect` or `--require` that make sense for the parent process can crash or hang an unattended child. |
+| Variable / pattern                             | Why it is stripped                                                                                                                                                                                |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CLAUDE_CODE_SSE_PORT`                         | The parent Claude session binds to this port for its local server. Inheriting the same port would cause the child Claude process to collide with the parent.                                      |
+| `NODE_OPTIONS`                                 | Often set by Node version managers or debugging tools. Flags like `--inspect` or `--require` that make sense for the parent process can crash or hang an unattended child.                        |
 | `VSCODE_INSPECTOR_OPTIONS`, `VSCODE_INJECTION` | Injected by the VS Code integrated terminal. These attach debuggers and load VS Code extensions into spawned processes, which is meaningless and potentially disruptive inside a headless daemon. |
-| `CLAUDE_CODE_*` (all) | The full family of Claude Code internal variables. Any of them being inherited by a child Claude instance risks state leakage between the orchestrator and the worker session. |
+| `CLAUDE_CODE_*` (all)                          | The full family of Claude Code internal variables. Any of them being inherited by a child Claude instance risks state leakage between the orchestrator and the worker session.                    |
 
 ## The `--dangerously-skip-permissions` trust model
 

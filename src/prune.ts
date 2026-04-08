@@ -37,7 +37,10 @@ export function filterCrewbitWorktrees(
 }
 
 export function pruneWorktrees(repoRoot: string, dryRun = false): void {
-  const raw = execSync("git worktree list --porcelain", { cwd: repoRoot, encoding: "utf8" });
+  const raw = execSync("git worktree list --porcelain", {
+    cwd: repoRoot,
+    encoding: "utf8",
+  });
   const worktrees = filterCrewbitWorktrees(parseWorktreeList(raw), repoRoot);
 
   if (worktrees.length === 0) {
@@ -49,7 +52,10 @@ export function pruneWorktrees(repoRoot: string, dryRun = false): void {
     console.log(`${dryRun ? "[dry-run] would remove" : "Removing"} worktree: ${wt.path}`);
     if (!dryRun) {
       try {
-        execSync(`git worktree remove --force "${wt.path}"`, { cwd: repoRoot, stdio: "pipe" });
+        execSync(`git worktree remove --force "${wt.path}"`, {
+          cwd: repoRoot,
+          stdio: "pipe",
+        });
       } catch {
         console.warn(`  Warning: could not remove worktree (already gone?): ${wt.path}`);
       }
@@ -59,7 +65,10 @@ export function pruneWorktrees(repoRoot: string, dryRun = false): void {
       console.log(`${dryRun ? "[dry-run] would delete" : "Deleting"} branch: ${wt.branch}`);
       if (!dryRun) {
         try {
-          execSync(`git branch -D "${wt.branch}"`, { cwd: repoRoot, stdio: "pipe" });
+          execSync(`git branch -D "${wt.branch}"`, {
+            cwd: repoRoot,
+            stdio: "pipe",
+          });
         } catch {
           console.warn(`  Warning: could not delete branch (already gone?): ${wt.branch}`);
         }

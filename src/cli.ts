@@ -60,7 +60,10 @@ export async function runCli(
     return;
   }
 
-  await handlers.daemon({ configPath: parsedArgs.configPath, dryRun: parsedArgs.dryRun });
+  await handlers.daemon({
+    configPath: parsedArgs.configPath,
+    dryRun: parsedArgs.dryRun,
+  });
 }
 
 async function main(): Promise<void> {

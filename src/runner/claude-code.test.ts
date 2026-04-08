@@ -139,7 +139,6 @@ describe("ClaudeCodeRunner", () => {
     runner.nextChild = child;
 
     const originalSsePort = process.env.CLAUDE_CODE_SSE_PORT;
-    const originalAnthropicBaseUrl = process.env.ANTHROPIC_BASE_URL;
     const originalNodeOptions = process.env.NODE_OPTIONS;
     const originalInspector = process.env.VSCODE_INSPECTOR_OPTIONS;
     const originalInjection = process.env.VSCODE_INJECTION;
@@ -147,7 +146,6 @@ describe("ClaudeCodeRunner", () => {
     const originalAllowed = process.env.CREWBIT_ALLOWED_ENV;
 
     process.env.CLAUDE_CODE_SSE_PORT = "1234";
-    process.env.ANTHROPIC_BASE_URL = "https://blocked";
     process.env.NODE_OPTIONS = "--inspect";
     process.env.VSCODE_INSPECTOR_OPTIONS = "blocked";
     process.env.VSCODE_INJECTION = "blocked";
@@ -162,14 +160,12 @@ describe("ClaudeCodeRunner", () => {
       assert.equal(result, true);
       assert.equal(runner.lastSpawnEnv?.CREWBIT_ALLOWED_ENV, "allowed");
       assert.equal(runner.lastSpawnEnv?.CLAUDE_CODE_SSE_PORT, undefined);
-      assert.equal(runner.lastSpawnEnv?.ANTHROPIC_BASE_URL, undefined);
       assert.equal(runner.lastSpawnEnv?.NODE_OPTIONS, undefined);
       assert.equal(runner.lastSpawnEnv?.VSCODE_INSPECTOR_OPTIONS, undefined);
       assert.equal(runner.lastSpawnEnv?.VSCODE_INJECTION, undefined);
       assert.equal(runner.lastSpawnEnv?.CLAUDE_CODE_CUSTOM_FLAG, undefined);
     } finally {
       process.env.CLAUDE_CODE_SSE_PORT = originalSsePort;
-      process.env.ANTHROPIC_BASE_URL = originalAnthropicBaseUrl;
       process.env.NODE_OPTIONS = originalNodeOptions;
       process.env.VSCODE_INSPECTOR_OPTIONS = originalInspector;
       process.env.VSCODE_INJECTION = originalInjection;
