@@ -67,9 +67,10 @@ describe("docs/reference/workflow-yaml.md", () => {
     });
   });
 
-  describe("providers.opencode fields completeness", () => {
-    it("documents providers.opencode baseUrl", () => {
-      assert.match(docContent, /`providers\.opencode`/);
+  describe("opencode fields completeness", () => {
+    it("documents top-level opencode baseUrl", () => {
+      assert.match(docContent, /## `opencode`/);
+      assert.doesNotMatch(docContent, /## `providers\.opencode`/);
       assert.match(docContent, /`baseUrl`/);
     });
   });

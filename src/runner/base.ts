@@ -12,7 +12,6 @@ type RunAction = Extract<QueueAction, { type: "run" }>;
 export type PreparedRunContext = {
   action: RunAction;
   issueKey: string;
-  command: string;
   prompt: string;
   maxSeconds: number;
   controller: AbortController;
@@ -66,17 +65,14 @@ export abstract class BaseRunner implements Runner {
 
   private prepareContext(action: RunAction, config: WorkflowConfig): PreparedRunContext {
     const prompt = this.buildPrompt(action);
-    const command = this.buildCommand(action, prompt);
     const preparedAction: RunAction = {
       ...action,
-      command,
       prompt,
     };
 
     return {
       action: preparedAction,
       issueKey: action.issueKey,
-      command,
       prompt,
       maxSeconds: getMaxSessionSeconds(config),
       controller: new AbortController(),
@@ -85,24 +81,12 @@ export abstract class BaseRunner implements Runner {
   }
 
   private buildPrompt(action: RunAction): string {
-    const template = action.prompt.trim().length > 0 ? action.prompt : "{command} {issueKey}";
+    const prompt = action.prompt ?? "";
+    const template = prompt.trim().length > 0 ? prompt : "{command} {issueKey}";
     return template
-      .replace("{command}", action.command)
+      .replace("{command}", action.command || "")
       .replace("{issueKey}", action.issueKey)
       .trim();
-  }
-
-  private buildCommand(action: RunAction, prompt: string): string {
-    const command = action.command.trim();
-    if (command.length > 0) {
-      return command;
-    }
-
-    const firstToken = prompt
-      .trim()
-      .split(/\s+/)
-      .find((token) => token.length > 0);
-    return firstToken ?? "";
   }
 }
 

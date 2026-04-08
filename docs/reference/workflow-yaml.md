@@ -103,14 +103,6 @@ Example: `feature/{issueKey}/{slug}` → `feature/PROJ-42/fix-login-bug`.
 | `owner`         | string | yes      | GitHub organization or user login  |
 | `projectNumber` | number | yes      | Project number from the GitHub URL |
 
-## `providers.opencode`
-
-| Field      | Type   | Required | Description                                 |
-| ---------- | ------ | -------- | ------------------------------------------- |
-| `baseUrl`  | string | yes      | OpenCode server base URL                    |
-| `username` | string | no       | HTTP basic auth username (defaults to opencode) |
-| `password` | string | no       | HTTP basic auth password                    |
-
 ## Environment variable overrides
 
 | Variable              | Overrides                    |

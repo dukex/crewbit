@@ -21,7 +21,9 @@ class TestRunner extends BaseRunner {
   readonly liveContexts: LiveRunContext[] = [];
 
   protected formatRunLabel(context: PreparedRunContext): string {
-    return `${context.command} :: ${context.prompt}`;
+    const commandMatch = context.prompt.match(/\/[^\s]+/);
+    const command = commandMatch?.[0] ?? context.prompt.split(/\s+/)[0];
+    return `${command} :: ${context.prompt}`;
   }
 
   protected async runDry(context: PreparedRunContext): Promise<boolean> {

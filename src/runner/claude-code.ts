@@ -1,4 +1,5 @@
-import { spawn } from "node:child_process";
+import { type ChildProcessByStdio, spawn } from "node:child_process";
+import type { Readable, Writable } from "node:stream";
 import type { WorkflowConfig } from "../types.js";
 import { BaseRunner, type LiveRunContext, type PreparedRunContext } from "./base.js";
 
@@ -19,16 +20,7 @@ export class ClaudeCodeRunner extends BaseRunner {
       const tail: string[] = [];
       const maxTail = 50;
 
-      const child = spawn(
-        "claude",
-        ["--dangerously-skip-permissions", "--no-session-persistence", "--print", context.prompt],
-        {
-          stdio: ["ignore", "pipe", "pipe"],
-          cwd: context.worktree.path,
-          env: childEnv,
-          timeout: context.maxSeconds * 1000,
-        },
-      );
+      const child = this.spawnClaude(context, childEnv);
 
       function recordLine(line: string): void {
         if (tail.length >= maxTail) tail.shift();
@@ -71,6 +63,22 @@ export class ClaudeCodeRunner extends BaseRunner {
         }
       });
     });
+  }
+
+  protected spawnClaude(
+    context: LiveRunContext,
+    env: Record<string, string>,
+  ): ChildProcessByStdio<Writable | null, Readable, Readable> {
+    return spawn(
+      "claude",
+      ["--dangerously-skip-permissions", "--no-session-persistence", "--print", context.prompt],
+      {
+        stdio: ["ignore", "pipe", "pipe"],
+        cwd: context.worktree.path,
+        env,
+        timeout: context.maxSeconds * 1000,
+      },
+    );
   }
 }
 

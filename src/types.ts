@@ -24,7 +24,6 @@ export interface WorkflowConfig {
   providers: {
     jira?: JiraProviderConfig;
     "github-projects"?: GitHubProjectsProviderConfig;
-    opencode?: OpenCodeProviderConfig;
     [key: string]: unknown;
   };
   runner?: "claude" | "opencode";
@@ -78,7 +77,7 @@ export type OpenCodeConfig = OpenCodeProviderConfig & OpenCodeServerConfig;
 export type RunAction = {
   type: "run";
   issueKey: string;
-  command: string;
+  command?: string;
   prompt: string;
 };
 export type IdleAction = { type: "idle" };
