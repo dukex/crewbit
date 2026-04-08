@@ -182,8 +182,7 @@ permission prompts. This means Claude will:
 - Scoping what Claude is allowed to do. Use explicit instructions like
   _"only push to branches prefixed with `feature/`"_ or _"do not delete files"_.
 - Keeping secrets out of the repository. The child process inherits your environment
-  except for a small set of blocked vars (`CLAUDE_CODE_SSE_PORT`, `ANTHROPIC_BASE_URL`,
-  `NODE_OPTIONS`, `VSCODE_INSPECTOR_OPTIONS`, `VSCODE_INJECTION`, `CLAUDE_CODE_*`).
+  except for a small set of blocked vars (`CLAUDE_CODE_SSE_PORT`, `NODE_OPTIONS`, `VSCODE_INSPECTOR_OPTIONS`, `VSCODE_INJECTION`, `CLAUDE_CODE_*`).
 - Reviewing the commands you ship. A command file is executable instructions; treat it
   with the same care you give production code.
 
