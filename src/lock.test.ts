@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { beforeEach, describe, it } from "node:test";
-import { LOCK_DIR, acquireLock, getLockedKeys, isLocked, releaseLock } from "./lock.js";
+import { acquireLock, getLockedKeys, isLocked, releaseLock } from "./lock.js";
 
-const TEST_LOCKS_DIR = join(process.cwd(), ".crewbit.test.locks");
+const TEST_LOCKS_DIR = join(process.cwd(), ".crewbit/test.locks");
 
 function cleanTestDir() {
   if (existsSync(TEST_LOCKS_DIR)) {
