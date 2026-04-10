@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/dukex/crewbit/compare/v1.5.0...v1.5.1) (2026-04-10)
+
+
+### Bug Fixes
+
+* dont filter ANTHROPIC_BASE_URL ([5cd7b0d](https://github.com/dukex/crewbit/commit/5cd7b0df6309001ae803080bccca64445355dea8))
+
 # [1.5.0](https://github.com/dukex/crewbit/compare/v1.4.0...v1.5.0) (2026-04-04)
 
 
