@@ -36,6 +36,7 @@ export interface WorkflowConfig {
     maxSessionSeconds: number;
     /** @deprecated use git.worktreePrefix instead */
     worktreePrefix?: string;
+    maxConcurrent?: number;
   };
   opencode?: OpenCodeConfig;
   git?: {
