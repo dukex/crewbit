@@ -10,8 +10,16 @@ This tutorial walks you through setting up crewbit to run an AI agent that picks
 
 ## 1. Install crewbit
 
+macOS / Linux:
+
 ```bash
 curl -fsSL https://crewbit.sh/install | bash
+```
+
+Windows (PowerShell):
+
+```powershell
+irm https://crewbit.sh/install.ps1 | iex
 ```
 
 Verify the installation:

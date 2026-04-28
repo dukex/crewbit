@@ -40,9 +40,18 @@ Only run in trusted environments.
 
 ## Install
 
+macOS / Linux:
+
 ```bash
 curl -fsSL https://crewbit.sh/install | bash
 crewbit ./dev-junior.yaml
+```
+
+Windows (PowerShell):
+
+```powershell
+irm https://crewbit.sh/install.ps1 | iex
+crewbit .\dev-junior.yaml
 ```
 
 ## Workflow

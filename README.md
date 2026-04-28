@@ -21,15 +21,30 @@ crewbit is a daemon that watches an issue tracker, picks up work in priority ord
 
 **Binary (recommended):**
 
+macOS / Linux:
+
 ```bash
 curl -fsSL https://crewbit.sh/install | bash
 ```
 
-Installs the latest release to `~/.crewbit/bin/crewbit` and adds the directory to
-your `PATH` (unless `--no-modify-path` is set). Override the directory:
+Windows (PowerShell):
+
+```powershell
+irm https://crewbit.sh/install.ps1 | iex
+```
+
+Installs the latest release to `~/.crewbit/bin/crewbit` (or
+`%USERPROFILE%\.crewbit\bin\crewbit.exe` on Windows) and adds the directory to
+your `PATH` unless `--no-modify-path` / `-NoModifyPath` is set.
+
+Override the directory:
 
 ```bash
 CREWBIT_INSTALL_DIR=~/.local/bin curl -fsSL https://crewbit.sh/install | bash
+```
+
+```powershell
+$env:CREWBIT_INSTALL_DIR = 'C:\tools\crewbit'; irm https://crewbit.sh/install.ps1 | iex
 ```
 
 Or pass flags directly:
@@ -38,13 +53,17 @@ Or pass flags directly:
 curl -fsSL https://crewbit.sh/install | bash -s -- --install-dir ~/.local/bin --no-modify-path
 ```
 
+```powershell
+& ([scriptblock]::Create((irm https://crewbit.sh/install.ps1))) -InstallDir 'C:\tools\crewbit' -NoModifyPath
+```
+
 **From source (requires [Bun](https://bun.sh)):**
 
 ```bash
 git clone https://github.com/dukex/crewbit
 cd crewbit
 bun run build
-sudo mv crewbit /usr/local/bin/
+sudo mv crewbit /usr/local/bin/   # on Windows: move .\crewbit.exe to a folder on your PATH
 ```
 
 ## Usage
