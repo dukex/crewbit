@@ -55,6 +55,9 @@ jobs:
           - os: macos-latest
             target: bun-darwin-x64
             artifact: crewbit-darwin-x64
+          - os: ubuntu-latest
+            target: bun-windows-x64
+            artifact: crewbit-windows-x64.exe
     steps:
       - uses: actions/checkout@v4
         with:
