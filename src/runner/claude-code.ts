@@ -1,7 +1,8 @@
-import { type ChildProcessByStdio, spawn } from "node:child_process";
+import type { ChildProcessByStdio } from "node:child_process";
 import type { Readable, Writable } from "node:stream";
 import type { WorkflowConfig } from "../types.js";
 import { BaseRunner, type LiveRunContext, type PreparedRunContext } from "./base.js";
+import { spawnTool } from "./spawn.js";
 
 export class ClaudeCodeRunner extends BaseRunner {
   protected formatRunLabel(context: PreparedRunContext): string {
@@ -69,7 +70,7 @@ export class ClaudeCodeRunner extends BaseRunner {
     context: LiveRunContext,
     env: Record<string, string>,
   ): ChildProcessByStdio<Writable | null, Readable, Readable> {
-    return spawn(
+    return spawnTool(
       "claude",
       ["--dangerously-skip-permissions", "--no-session-persistence", "--print", context.prompt],
       {
@@ -78,7 +79,7 @@ export class ClaudeCodeRunner extends BaseRunner {
         env,
         timeout: context.maxSeconds * 1000,
       },
-    );
+    ) as ChildProcessByStdio<Writable | null, Readable, Readable>;
   }
 }
 

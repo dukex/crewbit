@@ -1,5 +1,6 @@
-import { spawn } from "node:child_process";
+import type { spawn } from "node:child_process";
 import type { OpenCodeServerConfig as ServerConfig } from "../../types.js";
+import { spawnTool } from "../spawn.js";
 import type { Client } from "./client.js";
 
 export function buildOpenCodeServeArgs(config: ServerConfig): string[] {
@@ -97,7 +98,7 @@ export class Server {
   }
 
   protected spawnOpenCodeServer(args: string[]): ReturnType<typeof spawn> {
-    return spawn("opencode", args, {
+    return spawnTool("opencode", args, {
       stdio: ["ignore", "ignore", "ignore"],
       cwd: this.options.worktreePath,
       env: {
@@ -105,7 +106,7 @@ export class Server {
         OPENCODE_SERVER_PASSWORD: this.options.authPassword ?? process.env.OPENCODE_SERVER_PASSWORD,
         OPENCODE_SERVER_USERNAME: this.options.authUser,
       },
-    });
+    }) as ReturnType<typeof spawn>;
   }
 }
 
