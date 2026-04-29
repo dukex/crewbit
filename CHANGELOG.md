@@ -1,3 +1,10 @@
+## [1.5.2](https://github.com/dukex/crewbit/compare/v1.5.1...v1.5.2) (2026-04-29)
+
+
+### Bug Fixes
+
+* spawn agent CLIs through cmd.exe on Windows ([00e04ce](https://github.com/dukex/crewbit/commit/00e04ceabfbcae6799b6263eb048b2ba8deec172))
+
 ## [1.5.1](https://github.com/dukex/crewbit/compare/v1.5.0...v1.5.1) (2026-04-10)
 
 
