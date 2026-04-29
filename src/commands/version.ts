@@ -1,17 +1,10 @@
-import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import packageJson from "../../package.json" with { type: "json" };
+
+export const CREWBIT_VERSION: string = packageJson.version;
 
 export function runVersionCommand(): void {
-  const currentDir = dirname(fileURLToPath(import.meta.url));
-  const packageJsonPath = join(currentDir, "..", "..", "package.json");
-  const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8")) as {
-    version?: string;
-  };
-
-  if (!packageJson.version) {
+  if (!CREWBIT_VERSION) {
     throw new Error("Unable to read crewbit version from package.json");
   }
-
-  console.log(packageJson.version);
+  console.log(CREWBIT_VERSION);
 }
