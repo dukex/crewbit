@@ -4,3 +4,4 @@ node_modules/
 crewbit
 docs/.vitepress/dist
 docs/.vitepress/cache
+.crewbit
